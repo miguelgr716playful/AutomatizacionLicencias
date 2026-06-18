@@ -1,19 +1,26 @@
 "use client";
 
-import { useState } from "react";
 import { Plus, Edit3, ChevronDown, Clock, CalendarDays } from "lucide-react";
-import { adobeMapping, minitabMapping } from "@/lib/mock-data";
+import { useConfiguracion } from "@/hooks/use-configuracion";
 
 export function ConfiguracionSection() {
-  const [editField, setEditField] = useState<string | null>(null);
-  const [periodicidad, setPeriodicidad] = useState("Diario (Nocturno)");
+  const { data, cargando, editField, setEditField, actualizarPeriodicidad } =
+    useConfiguracion();
+
+  if (cargando || !data) {
+    return (
+      <div className="flex items-center justify-center h-64 text-muted-foreground text-sm">
+        Cargando configuración...
+      </div>
+    );
+  }
+
+  const { proveedores, programador } = data;
 
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-page-title">
-          Configuración del Sistema
-        </h1>
+        <h1 className="text-page-title">Configuración del Sistema</h1>
         <p className="text-page-subtitle">
           Proveedores de licencias y sincronización automática con Banner
         </p>
@@ -22,9 +29,7 @@ export function ConfiguracionSection() {
       <div className="bg-white rounded-xl border border-border shadow-sm p-6">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-section-title">
-              Configuración de Proveedores
-            </h2>
+            <h2 className="text-section-title">Configuración de Proveedores</h2>
             <p className="text-section-subtitle">
               Mapeo de datos entre el sistema local y las APIs externas
             </p>
@@ -38,11 +43,8 @@ export function ConfiguracionSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[
-            { name: "Adobe Creative Cloud", icon: "AC", mapping: adobeMapping },
-            { name: "Minitab", icon: "Mt", mapping: minitabMapping },
-          ].map(({ name, icon, mapping }) => (
-            <div key={name} className="border border-border rounded-xl p-5">
+          {proveedores.map(({ nombre, icon, mapping }) => (
+            <div key={nombre} className="border border-border rounded-xl p-5">
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-7 h-7 rounded bg-emerald-100 flex items-center justify-center">
                   <span className="text-xs font-bold text-emerald-700">
@@ -50,7 +52,7 @@ export function ConfiguracionSection() {
                   </span>
                 </div>
                 <h3 className="text-sm font-semibold text-foreground">
-                  {name}
+                  {nombre}
                 </h3>
               </div>
               <div className="space-y-0">
@@ -78,9 +80,9 @@ export function ConfiguracionSection() {
                         type="button"
                         onClick={() =>
                           setEditField(
-                            editField === `${name}-${m.local}`
+                            editField === `${nombre}-${m.local}`
                               ? null
-                              : `${name}-${m.local}`
+                              : `${nombre}-${m.local}`
                           )
                         }
                         className="text-muted-foreground hover:text-foreground transition-colors p-0.5 rounded"
@@ -97,9 +99,7 @@ export function ConfiguracionSection() {
       </div>
 
       <div className="bg-white rounded-xl border border-border shadow-sm p-6">
-        <h2 className="text-section-title">
-          Programador de Tareas
-        </h2>
+        <h2 className="text-section-title">Programador de Tareas</h2>
         <p className="text-section-subtitle mb-5">
           Configura la sincronización automática con Banner
         </p>
@@ -112,8 +112,8 @@ export function ConfiguracionSection() {
               </label>
               <div className="relative">
                 <select
-                  value={periodicidad}
-                  onChange={(e) => setPeriodicidad(e.target.value)}
+                  value={programador.periodicidad}
+                  onChange={(e) => actualizarPeriodicidad(e.target.value)}
                   className="w-full text-sm px-3 py-2.5 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none"
                 >
                   <option>Diario (Nocturno)</option>
@@ -131,7 +131,7 @@ export function ConfiguracionSection() {
                 Próxima ejecución programada:
               </span>
               <span className="text-emerald-600 font-semibold">
-                Hoy, 23:59 hrs
+                {programador.proximaEjecucion}
               </span>
             </div>
           </div>

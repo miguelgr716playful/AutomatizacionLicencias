@@ -1,26 +1,36 @@
 "use client";
 
-import { useState } from "react";
 import {
   CheckCircle2,
   ChevronDown,
   AlertTriangle,
   Upload,
 } from "lucide-react";
+import { useAprovisionar } from "@/hooks/use-aprovisionar";
+import type { SoftwareId } from "@/domain/value-objects/software";
 
 export function AprovisionarSection() {
-  const [software, setSoftware] = useState("");
-  const [periodo, setPeriodo] = useState("");
-  const [tipoOp, setTipoOp] = useState<"aprov" | "desaprov">("aprov");
-  const [drag, setDrag] = useState(false);
-  const [fileName, setFileName] = useState("");
+  const {
+    software,
+    setSoftware,
+    periodo,
+    setPeriodo,
+    tipoOp,
+    setTipoOp,
+    fileName,
+    setFileName,
+    drag,
+    setDrag,
+    procesando,
+    resultado,
+    error,
+    procesar,
+  } = useAprovisionar();
 
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-page-title">
-          Aprovisionar Licencias
-        </h1>
+        <h1 className="text-page-title">Aprovisionar Licencias</h1>
         <p className="text-page-subtitle">
           Aprovisiona o revoca licencias de software usando archivos CSV con
           Claves Banner.
@@ -28,9 +38,7 @@ export function AprovisionarSection() {
       </div>
 
       <div className="max-w-3xl mx-auto bg-white rounded-xl border border-border shadow-sm p-8 space-y-6">
-        <h2 className="text-section-title">
-          Gestión de Licencias
-        </h2>
+        <h2 className="text-section-title">Gestión de Licencias</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -40,7 +48,9 @@ export function AprovisionarSection() {
             <div className="relative">
               <select
                 value={software}
-                onChange={(e) => setSoftware(e.target.value)}
+                onChange={(e) =>
+                  setSoftware(e.target.value as SoftwareId | "")
+                }
                 className="w-full text-sm px-3 py-2.5 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none text-muted-foreground"
               >
                 <option value="">Seleccionar software</option>
@@ -179,12 +189,31 @@ export function AprovisionarSection() {
           </div>
         </div>
 
+        {error && (
+          <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-4 py-2">
+            {error}
+          </p>
+        )}
+
+        {resultado && (
+          <div className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3">
+            <p className="font-semibold">{resultado.estado}</p>
+            <p className="mt-1">{resultado.mensaje}</p>
+            <p className="text-xs text-emerald-600 mt-1">
+              Operación {resultado.operacionId} · {resultado.registrosProcesados}{" "}
+              registros
+            </p>
+          </div>
+        )}
+
         <div className="flex justify-end pt-2">
           <button
             type="button"
-            className="px-6 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors"
+            onClick={() => procesar()}
+            disabled={procesando}
+            className="px-6 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50"
           >
-            Procesar Archivo
+            {procesando ? "Procesando..." : "Procesar Archivo"}
           </button>
         </div>
       </div>

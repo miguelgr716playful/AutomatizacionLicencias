@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Download,
   ChevronDown,
@@ -9,41 +8,41 @@ import {
   Eye,
   CalendarDays,
 } from "lucide-react";
-import { PAGE_SIZE, reporteData } from "@/lib/mock-data";
+import { useReportes } from "@/hooks/use-reportes";
 
 export function ReportesSection() {
-  const [filterSoftware, setFilterSoftware] = useState("Todo software");
-  const [filterAccion, setFilterAccion] = useState("Alta y Baja");
-  const [filterOrigen, setFilterOrigen] = useState("ETL + Manual");
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
+  const {
+    filterSoftware,
+    setFilterSoftware,
+    filterAccion,
+    setFilterAccion,
+    filterOrigen,
+    setFilterOrigen,
+    search,
+    setSearch,
+    page,
+    setPage,
+    data,
+    cargando,
+    pageSize,
+  } = useReportes();
 
-  const filtered = reporteData.filter(
-    (r) =>
-      (filterSoftware === "Todo software" || r.software === filterSoftware) &&
-      (filterAccion === "Alta y Baja" || r.accion === filterAccion) &&
-      (filterOrigen === "ETL + Manual" || r.origen === filterOrigen) &&
-      (search === "" ||
-        r.nombre.toLowerCase().includes(search.toLowerCase()) ||
-        r.id.includes(search) ||
-        r.clave.includes(search))
-  );
+  if (cargando || !data) {
+    return (
+      <div className="flex items-center justify-center h-64 text-muted-foreground text-sm">
+        Cargando reportes...
+      </div>
+    );
+  }
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-
-  const handleFilterChange = (setter: (v: string) => void) => (val: string) => {
-    setter(val);
-    setPage(1);
-  };
+  const { items: paginated, total: filteredTotal, totalPages } = data;
+  const stats = data.estadisticas;
 
   return (
     <div className="space-y-5">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-page-title">
-            Reportes e Historial
-          </h1>
+          <h1 className="text-page-title">Reportes e Historial</h1>
           <p className="text-page-subtitle">
             Historial de asignaciones almacenado en Azure · Acceso de Auditor
           </p>
@@ -66,28 +65,28 @@ export function ReportesSection() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
-            value: "2,847",
+            value: stats.totalMovimientos,
             label: "Total movimientos",
             sub: "Periodo 2026-Agosto",
             color: "#00B364",
             border: "#00B364",
           },
           {
-            value: "1,983",
+            value: stats.altasTotales,
             label: "Altas totales",
             sub: "69.7% del total",
             color: "#00B364",
             border: "#00B364",
           },
           {
-            value: "864",
+            value: stats.bajasTotales,
             label: "Bajas totales",
             sub: "30.3% del total",
             color: "#ef4444",
             border: "#ef4444",
           },
           {
-            value: "47",
+            value: stats.movimientosManuales,
             label: "Movimientos manuales",
             sub: "1.6% con justificación",
             color: "#0B4D3C",
@@ -99,10 +98,7 @@ export function ReportesSection() {
             className="bg-white rounded-xl border border-border shadow-sm p-3.5 flex flex-col gap-0.5 border-l-4"
             style={{ borderLeftColor: c.border }}
           >
-            <p
-              className="text-stat-value"
-              style={{ color: c.color }}
-            >
+            <p className="text-stat-value" style={{ color: c.color }}>
               {c.value}
             </p>
             <p className="text-xs font-semibold text-foreground">{c.label}</p>
@@ -116,7 +112,7 @@ export function ReportesSection() {
           <h2 className="text-section-title flex items-center gap-2">
             Historial de Asignaciones
             <span className="px-1.5 py-0.5 rounded-md text-badge font-bold bg-gray-100 text-muted-foreground">
-              {filtered.length}
+              {filteredTotal}
             </span>
           </h2>
           <div className="flex items-center gap-1.5 ml-auto flex-wrap">
@@ -124,17 +120,17 @@ export function ReportesSection() {
             {[
               {
                 val: filterSoftware,
-                set: handleFilterChange(setFilterSoftware),
+                set: setFilterSoftware,
                 opts: ["Todo software", "Adobe CC", "Minitab"],
               },
               {
                 val: filterAccion,
-                set: handleFilterChange(setFilterAccion),
+                set: setFilterAccion,
                 opts: ["Alta y Baja", "Alta", "Baja"],
               },
               {
                 val: filterOrigen,
-                set: handleFilterChange(setFilterOrigen),
+                set: setFilterOrigen,
                 opts: ["ETL + Manual", "ETL", "Manual"],
               },
             ].map(({ val, set, opts }) => (
@@ -155,10 +151,7 @@ export function ReportesSection() {
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
               <input
                 value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="ID, nombre, clave..."
                 className="pl-6 pr-2 py-1.5 text-xs rounded-lg border border-border focus:outline-none focus:ring-1 focus:ring-emerald-400 w-40"
               />
@@ -283,10 +276,10 @@ export function ReportesSection() {
           <span className="text-xs text-muted-foreground">
             Mostrando{" "}
             <strong className="text-foreground">
-              {(page - 1) * PAGE_SIZE + 1}–
-              {Math.min(page * PAGE_SIZE, filtered.length)}
+              {(page - 1) * pageSize + 1}–
+              {Math.min(page * pageSize, filteredTotal)}
             </strong>{" "}
-            de <strong className="text-foreground">{filtered.length}</strong>{" "}
+            de <strong className="text-foreground">{filteredTotal}</strong>{" "}
             registros
           </span>
           <div className="flex items-center gap-1.5">

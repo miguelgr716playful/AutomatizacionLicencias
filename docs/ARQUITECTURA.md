@@ -4,7 +4,7 @@
 
 Sistema frontend para la gestión de licencias de software educativo. Permite aprovisionar y desaprovisionar licencias mediante archivos CSV con claves Banner, consultar reportes de auditoría y configurar integraciones con proveedores (Adobe, Minitab).
 
-La aplicación está construida con **Next.js 15 (App Router)**, **React 18** y **TypeScript**, siguiendo una arquitectura por capas orientada a componentes reutilizables y rutas explícitas.
+La aplicación está construida con **Next.js 15 (App Router)**, **React 18** y **TypeScript**, siguiendo **Clean Architecture** con capas de dominio, aplicación, infraestructura y presentación (hooks + componentes).
 
 ---
 
@@ -26,35 +26,45 @@ La aplicación está construida con **Next.js 15 (App Router)**, **React 18** y 
 
 ```mermaid
 flowchart TB
-    subgraph Cliente["Cliente (Navegador)"]
-        UI["Interfaz React"]
+    subgraph Presentacion["Presentación"]
+        Pages["app/ (páginas)"]
+        Sections["components/sections/"]
+        Hooks["hooks/"]
     end
 
-    subgraph NextJS["Next.js App Router"]
-        Pages["Páginas (app/)"]
-        Layout["Layouts"]
-        Components["Componentes (components/)"]
-        Lib["Lógica compartida (lib/)"]
+    subgraph Aplicacion["Aplicación"]
+        UseCases["use-cases/"]
+        DTOs["dto/"]
+    end
+
+    subgraph Dominio["Dominio"]
+        Entities["entities/"]
+        Ports["ports/"]
+    end
+
+    subgraph Infra["Infraestructura"]
+        Repos["repositories/ (mock)"]
+        Adapters["adapters/ (Adobe, Minitab)"]
+        DI["di/container.ts"]
     end
 
     subgraph Futuro["Integraciones futuras"]
         Banner["Banner SIS"]
-        AdobeAPI["Adobe Admin API"]
-        MinitabAPI["Minitab API"]
         Azure["Azure Blob Storage"]
     end
 
-    UI --> Pages
-    Pages --> Layout
-    Pages --> Components
-    Components --> Lib
-    Lib -.->|API Routes / Server Actions| Banner
-    Lib -.-> AdobeAPI
-    Lib -.-> MinitabAPI
-    Lib -.-> Azure
+    Pages --> Sections
+    Sections --> Hooks
+    Hooks --> DI
+    DI --> UseCases
+    UseCases --> Ports
+    Repos -.->|implementa| Ports
+    Adapters -.->|implementa| Ports
+    Repos -.-> Azure
+    Adapters -.-> Banner
 ```
 
-> **Nota:** La versión actual usa datos mock en `lib/mock-data.ts`. Las integraciones con APIs externas se implementarán en capas de servidor (Route Handlers o Server Actions).
+> **Nota:** La versión actual usa repositorios mock en `infrastructure/`. Al conectar APIs reales, se sustituyen las implementaciones mock sin modificar dominio ni casos de uso.
 
 ---
 
@@ -74,30 +84,39 @@ AutomatizacionLicencias/
 │       ├── reportes/page.tsx
 │       └── configuracion/page.tsx
 │
+├── domain/                       # Capa de dominio (sin dependencias externas)
+│   ├── entities/                 # Entidades y agregados
+│   ├── value-objects/            # Tipos de valor (SoftwareId, TipoOperacion)
+│   └── ports/                    # Interfaces (repositorios, gateways)
+│
+├── application/                  # Casos de uso y DTOs
+│   ├── dto/
+│   └── use-cases/
+│
+├── infrastructure/               # Implementaciones concretas
+│   ├── mocks/data.ts             # Datos de demostración
+│   ├── repositories/             # Repositorios mock
+│   ├── adapters/                 # Adobe, Minitab
+│   └── di/container.ts           # Inyección de dependencias
+│
+├── hooks/                        # Puente UI ↔ casos de uso
+│   ├── use-aprovisionar.ts
+│   ├── use-dashboard.ts
+│   ├── use-reportes.ts
+│   └── use-configuracion.ts
+│
 ├── components/
 │   ├── auth/
-│   │   └── login-form.tsx        # Formulario de login
-│   ├── layout/                   # Shell de aplicación
-│   │   ├── app-shell.tsx         # Contenedor principal
-│   │   ├── sidebar.tsx           # Navegación lateral
-│   │   └── role-provider.tsx     # Contexto de rol activo
-│   ├── sections/                 # Vistas por módulo de negocio
-│   │   ├── dashboard-section.tsx
-│   │   ├── aprovisionar-section.tsx
-│   │   ├── reportes-section.tsx
-│   │   └── configuracion-section.tsx
-│   └── ui/                       # Primitivos shadcn/ui (reutilizables)
+│   ├── layout/
+│   ├── sections/                 # Solo presentación (usan hooks)
+│   └── ui/
 │
 ├── lib/
-│   ├── constants.ts              # Tipos, rutas, roles y navegación
-│   └── mock-data.ts              # Datos de demostración
+│   ├── constants.ts              # Rutas, roles y navegación
+│   └── mock-data.ts              # Reexport temporal (deprecated)
 │
 ├── public/
-│   └── tecmilenio.png            # Assets estáticos
-│
 ├── docs/
-│   └── ARQUITECTURA.md           # Este documento
-│
 ├── next.config.ts
 ├── tsconfig.json
 └── package.json
@@ -138,19 +157,34 @@ El selector de rol (Administrador / Ejecutor / Auditor) vive en un React Context
 
 En producción, el rol debería provenir de autenticación (JWT, SSO institucional) y validarse en middleware de Next.js.
 
-### 5.4 Separación de datos
+### 5.4 Clean Architecture — flujo de dependencias
 
-- **`lib/constants.ts`**: configuración estática (rutas, roles, navegación).
-- **`lib/mock-data.ts`**: datos de prueba desacoplados de la UI.
-
-Al conectar APIs reales, se recomienda:
+Las dependencias apuntan siempre hacia el dominio:
 
 ```
-lib/
-├── api/           # Clientes HTTP (Adobe, Minitab, Banner)
-├── services/      # Lógica de negocio
-└── types/         # DTOs e interfaces de dominio
+components/sections → hooks/ → application/use-cases → domain/ports
+                                              ↑
+                              infrastructure/repositories (implementa ports)
 ```
+
+| Capa | Responsabilidad |
+|------|-----------------|
+| **domain/** | Entidades, value objects y puertos (interfaces) |
+| **application/** | Casos de uso que orquestan la lógica de negocio |
+| **infrastructure/** | Repositorios mock, adapters Adobe/Minitab, DI |
+| **hooks/** | Estado de UI y llamadas a casos de uso |
+| **components/sections/** | Renderizado; sin lógica de filtrado ni acceso a datos |
+
+Casos de uso actuales:
+
+| Caso de uso | Hook | Sección |
+|-------------|------|---------|
+| `AprovisionarLicenciasUseCase` | `useAprovisionar` | aprovisionar |
+| `ObtenerDashboardUseCase` | `useDashboard` | dashboard |
+| `ObtenerReportesUseCase` | `useReportes` | reportes |
+| `ObtenerConfiguracionUseCase` | `useConfiguracion` | configuración |
+
+Al conectar APIs reales, crear implementaciones en `infrastructure/repositories/` (p. ej. `azure-reporte.repository.ts`) que implementen los mismos puertos.
 
 ---
 
@@ -162,16 +196,21 @@ lib/
 sequenceDiagram
     participant U as Ejecutor
     participant UI as AprovisionarSection
-    participant API as API Route (futuro)
+    participant Hook as useAprovisionar
+    participant UC as AprovisionarLicenciasUseCase
+    participant Repo as LicenciaRepository
     participant Prov as Proveedor (Adobe/Minitab)
 
     U->>UI: Selecciona software, período y tipo
     U->>UI: Sube archivo CSV (claves Banner)
-    UI->>API: POST /api/licencias/procesar
-    API->>API: Valida CSV y mapea campos Banner
-    API->>Prov: Alta/Baja masiva
-    Prov-->>API: Resultado por registro
-    API-->>UI: Resumen de operación
+    UI->>Hook: procesar()
+    Hook->>UC: ejecutar(dto)
+    UC->>Repo: procesar(input)
+    Repo->>Prov: procesarLote()
+    Prov-->>Repo: exitosos / fallidos
+    Repo-->>UC: ResultadoOperacion
+    UC-->>Hook: AprovisionarResponse
+    Hook-->>UI: resultado + mensaje
 ```
 
 ### 6.2 Reportes de auditoría
@@ -180,11 +219,17 @@ sequenceDiagram
 sequenceDiagram
     participant A as Auditor
     participant UI as ReportesSection
-    participant Store as Azure Blob (futuro)
+    participant Hook as useReportes
+    participant UC as ObtenerReportesUseCase
+    participant Repo as ReporteRepository
 
     A->>UI: Aplica filtros y búsqueda
-    UI->>Store: Consulta historial de movimientos
-    Store-->>UI: Registros paginados
+    UI->>Hook: actualiza filtros / página
+    Hook->>UC: ejecutar(filtros, page)
+    UC->>Repo: listar() + obtenerEstadisticas()
+    Repo-->>UC: ReportesPaginados
+    UC-->>Hook: ReportesResponse
+    Hook-->>UI: tabla + paginación
     A->>UI: Exporta a Excel/CSV
 ```
 
@@ -282,8 +327,8 @@ BANNER_API_TOKEN=
 
 ## 11. Roadmap técnico
 
-1. **Fase 1 (actual):** UI funcional con datos mock y navegación por roles.
-2. **Fase 2:** API Routes para procesamiento de CSV y conexión con proveedores.
+1. **Fase 1 (actual):** UI funcional, Clean Architecture con repositorios mock y navegación por roles.
+2. **Fase 2:** Sustituir repositorios mock por implementaciones reales (API Routes, Adobe, Minitab, Azure).
 3. **Fase 3:** Autenticación institucional (SSO) y middleware de autorización.
 4. **Fase 4:** Persistencia en Azure y jobs programados (sincronización Banner).
 5. **Fase 5:** Tests E2E (Playwright) y monitoreo de operaciones masivas.
@@ -298,7 +343,8 @@ BANNER_API_TOKEN=
 | TypeScript estricto | Contratos claros entre capas y menos errores en integraciones |
 | Tailwind CSS 4 | Consistencia visual y tema Tecmilenio ya definido |
 | Client Components en secciones | Interactividad inmediata sin complejidad de hidratación en gráficas |
-| Mock data en `lib/` | Desacopla UI de backends aún no implementados |
+| Clean Architecture | Dominio estable; infraestructura intercambiable sin tocar UI |
+| Repositorios mock | Desacopla UI de backends aún no implementados |
 | `components/ui/` shadcn | Base extensible para formularios y diálogos futuros |
 
 ---

@@ -1,0 +1,194 @@
+import type { ActividadLicencia } from "@/domain/entities/licencia";
+import type { TendenciaMes } from "@/domain/entities/dashboard";
+import type { MovimientoReporte } from "@/domain/entities/reporte";
+import type { CampoMapeo } from "@/domain/entities/configuracion";
+
+export const barData: TendenciaMes[] = [
+  { mes: "Ene", adobe: 312, minitab: 88 },
+  { mes: "Feb", adobe: 328, minitab: 91 },
+  { mes: "Mar", adobe: 310, minitab: 94 },
+  { mes: "Abr", adobe: 341, minitab: 97 },
+  { mes: "May", adobe: 330, minitab: 100 },
+  { mes: "Jun", adobe: 370, minitab: 108 },
+  { mes: "Jul", adobe: 410, minitab: 115 },
+  { mes: "Ago", adobe: 445, minitab: 128 },
+];
+
+export const actividadReciente: ActividadLicencia[] = [
+  {
+    fecha: "14 Feb 2024",
+    software: "Adobe",
+    tipo: "APROV",
+    estado: "Completado",
+  },
+  {
+    fecha: "12 Feb 2024",
+    software: "Minitab",
+    tipo: "DESAP",
+    estado: "Completado",
+  },
+  {
+    fecha: "10 Feb 2024",
+    software: "Adobe",
+    tipo: "APROV",
+    estado: "En Proceso",
+  },
+  {
+    fecha: "08 Feb 2024",
+    software: "Adobe",
+    tipo: "DESAP",
+    estado: "Completado",
+  },
+  {
+    fecha: "05 Feb 2024",
+    software: "Minitab",
+    tipo: "APROV",
+    estado: "Completado",
+  },
+];
+
+export const adobeMapping: CampoMapeo[] = [
+  { local: "banner_id", api: "federatedID" },
+  { local: "email_inst", api: "email" },
+  { local: "nombres", api: "firstname" },
+  { local: "apellidos", api: "lastname" },
+];
+
+export const minitabMapping: CampoMapeo[] = [
+  { local: "email_inst", api: "Email" },
+  { local: "nombres", api: "FirstName" },
+  { local: "apellidos", api: "LastName" },
+];
+
+export const reporteData: MovimientoReporte[] = [
+  {
+    fecha: "2026-06-12",
+    hora: "04:02",
+    nombre: "Javier Torres Ramírez",
+    id: "A01198234",
+    clave: "EST-201",
+    nivel: "Mtra.",
+    software: "Minitab",
+    accion: "Alta",
+    origen: "ETL",
+    operador: "sistema",
+  },
+  {
+    fecha: "2026-06-12",
+    hora: "04:01",
+    nombre: "Carlos Mendoza Ríos",
+    id: "A01234567",
+    clave: "DIS-101",
+    nivel: "Lic.",
+    software: "Adobe CC",
+    accion: "Alta",
+    origen: "ETL",
+    operador: "sistema",
+  },
+  {
+    fecha: "2026-06-12",
+    hora: "04:01",
+    nombre: "Sofía Gutiérrez Luna",
+    id: "A01234890",
+    clave: "DIS-205",
+    nivel: "Lic.",
+    software: "Adobe CC",
+    accion: "Alta",
+    origen: "ETL",
+    operador: "sistema",
+  },
+  {
+    fecha: "2026-06-11",
+    hora: "09:14",
+    nombre: "Ana Herrera Vidal",
+    id: "A01299001",
+    clave: "MKT-310",
+    nivel: "Lic.",
+    software: "Adobe CC",
+    accion: "Alta",
+    origen: "Manual",
+    operador: "admin",
+  },
+  {
+    fecha: "2026-06-11",
+    hora: "04:02",
+    nombre: "Pedro Sánchez Mora",
+    id: "A01155678",
+    clave: "CAL-400",
+    nivel: "Lic.",
+    software: "Minitab",
+    accion: "Baja",
+    origen: "ETL",
+    operador: "sistema",
+  },
+  {
+    fecha: "2026-06-10",
+    hora: "04:01",
+    nombre: "Laura Castillo Reyes",
+    id: "A01344512",
+    clave: "INV-502",
+    nivel: "Mtra.",
+    software: "Minitab",
+    accion: "Alta",
+    origen: "ETL",
+    operador: "sistema",
+  },
+  {
+    fecha: "2026-06-10",
+    hora: "04:01",
+    nombre: "Marcos Fuentes Díaz",
+    id: "A01099834",
+    clave: "ARQ-150",
+    nivel: "Lic.",
+    software: "Adobe CC",
+    accion: "Baja",
+    origen: "ETL",
+    operador: "sistema",
+  },
+  {
+    fecha: "2026-06-09",
+    hora: "14:30",
+    nombre: "Valentina Ortiz Nava",
+    id: "A01280045",
+    clave: "FIN-301",
+    nivel: "Lic.",
+    software: "Minitab",
+    accion: "Baja",
+    origen: "Manual",
+    operador: "admin",
+  },
+  {
+    fecha: "2026-06-08",
+    hora: "04:01",
+    nombre: "Ricardo Peña Salinas",
+    id: "A01102938",
+    clave: "MAT-210",
+    nivel: "Lic.",
+    software: "Adobe CC",
+    accion: "Alta",
+    origen: "ETL",
+    operador: "sistema",
+  },
+  {
+    fecha: "2026-06-07",
+    hora: "10:15",
+    nombre: "Isabella Mora Vega",
+    id: "A01376521",
+    clave: "QUI-330",
+    nivel: "Mtra.",
+    software: "Minitab",
+    accion: "Alta",
+    origen: "Manual",
+    operador: "admin",
+  },
+];
+
+let periodicidadActual = "Diario (Nocturno)";
+
+export function getPeriodicidad(): string {
+  return periodicidadActual;
+}
+
+export function setPeriodicidad(value: string): void {
+  periodicidadActual = value;
+}
