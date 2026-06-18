@@ -210,8 +210,8 @@ Página
 |----------|--------|
 | H1 + subtítulo | Patrón estándar |
 | Botón exportar | `text-sm font-semibold` |
-| H2 tabla | `text-sm font-semibold` *(difiere del resto)* |
-| Datos técnicos | `font-mono` en fechas, IDs y claves |
+| H2 tabla | `text-section-title` |
+| Datos técnicos | `font-mono text-xs` en fechas, IDs y claves |
 
 ### Configuración (`/configuracion`)
 
@@ -224,37 +224,25 @@ Página
 
 ---
 
-## 9. Inconsistencias conocidas
+## 9. Clases utilitarias centralizadas
 
-| Área | Detalle | Recomendación |
-|------|---------|---------------|
-| Stat cards | Dashboard usa `1.6rem`, reportes usa `text-xl` | Unificar a un solo tamaño |
-| H2 en reportes | `text-sm` vs `text-base` en otros módulos | Cambiar a `text-base font-semibold` |
-| Tablas | Mezcla de `text-[10px]`, `text-[11px]`, `text-xs` | Preferir `text-xs` donde sea legible |
-| Estilos HTML base | No hay reglas globales para `h1`–`h4` | Todo depende de clases en componentes |
+Definidas en `app/globals.css` (`@layer components`):
 
----
-
-## 10. Tokens sugeridos (futuro)
-
-Para centralizar la tipografía en `globals.css`:
-
-```css
-@theme inline {
-  --text-page-title: 1.5rem;      /* 24px — text-2xl */
-  --text-page-subtitle: 0.875rem; /* 14px — text-sm */
-  --text-section-title: 1rem;     /* 16px — text-base */
-  --text-section-sub: 0.75rem;  /* 12px — text-xs */
-  --text-stat-value: 1.6rem;      /* ~26px */
-  --text-label: 0.875rem;         /* 14px */
-  --text-caption: 0.75rem;        /* 12px */
-  --text-micro: 0.625rem;         /* 10px */
-}
-```
+| Clase | Equivalente | Uso |
+|-------|-------------|-----|
+| `text-page-title` | `text-2xl font-bold` | H1 de página |
+| `text-page-subtitle` | `text-sm muted` | Subtítulo bajo H1 |
+| `text-section-title` | `text-base font-semibold` | H2 de cards |
+| `text-section-subtitle` | `text-xs muted` | Subtítulo de cards |
+| `text-stat-value` | `text-2xl font-bold` | Valores en stat cards |
+| `text-table-header` | `text-xs bold upper` | Encabezados de tabla |
+| `text-table-cell` | `text-xs` | Celdas estándar |
+| `text-badge` | `text-xs font-semibold` | Chips y badges |
+| `text-sidebar-label` | `text-xs upper wide` | Etiquetas del sidebar |
 
 ---
 
-## 11. Archivos relacionados
+## 10. Archivos relacionados
 
 | Archivo | Contenido tipográfico |
 |---------|----------------------|

@@ -39,7 +39,7 @@ export function Sidebar() {
       </div>
 
       <div className="px-3 pt-4 pb-2">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-white/40 px-2 mb-2">
+        <p className="text-sidebar-label text-white/40 px-2 mb-2">
           Rol Activo
         </p>
         <div className="space-y-0.5">
@@ -76,7 +76,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto border-t border-white/10 mt-2">
-        <p className="text-[10px] font-semibold uppercase tracking-widest text-white/40 px-2 mb-2">
+        <p className="text-sidebar-label text-white/40 px-2 mb-2">
           Navegación
         </p>
         {NAV_ITEMS.filter((item) =>

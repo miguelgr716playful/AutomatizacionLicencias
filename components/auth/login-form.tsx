@@ -20,10 +20,10 @@ export function LoginForm() {
     <div className="relative z-10 w-full max-w-md">
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-white/20 shadow-2xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-page-title">
             Automatización de Licencias
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-page-subtitle mt-1">
             Ingresa tus credenciales institucionales
           </p>
         </div>

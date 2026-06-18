@@ -58,8 +58,8 @@ export function DashboardSection() {
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Panel General</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
+          <h1 className="text-page-title">Panel General</h1>
+          <p className="text-page-subtitle">
             Resumen en tiempo real — Periodo 2026-Agosto
           </p>
         </div>
@@ -106,7 +106,7 @@ export function DashboardSection() {
               <p className="text-xs text-muted-foreground leading-snug">
                 {c.label}
               </p>
-              <p className="text-[1.6rem] font-bold text-foreground leading-tight tracking-tight">
+              <p className="text-stat-value text-foreground">
                 {c.value}
               </p>
               {c.sub && (
@@ -129,10 +129,10 @@ export function DashboardSection() {
         <div className="lg:col-span-3 bg-white rounded-2xl border border-border p-5 shadow-sm flex flex-col">
           <div className="flex items-start justify-between gap-2 mb-4">
             <div>
-              <h2 className="text-base font-semibold text-foreground">
+              <h2 className="text-section-title">
                 Tendencia de Licencias
               </h2>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-section-subtitle">
                 Últimos 6 meses
               </p>
             </div>
@@ -172,12 +172,12 @@ export function DashboardSection() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
                 <XAxis
                   dataKey="mes"
-                  tick={{ fontSize: 11, fill: "#94a3b8" }}
+                  tick={{ fontSize: 12, fill: "#94a3b8" }}
                   axisLine={false}
                   tickLine={false}
                 />
                 <YAxis
-                  tick={{ fontSize: 11, fill: "#94a3b8" }}
+                  tick={{ fontSize: 12, fill: "#94a3b8" }}
                   axisLine={false}
                   tickLine={false}
                 />
@@ -217,10 +217,10 @@ export function DashboardSection() {
 
         <div className="lg:col-span-2 bg-white rounded-2xl border border-border shadow-sm flex flex-col overflow-hidden">
           <div className="px-5 py-4 border-b border-border">
-            <h2 className="text-base font-semibold text-foreground">
+            <h2 className="text-section-title">
               Actividad Reciente
             </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-section-subtitle">
               Últimas operaciones procesadas
             </p>
           </div>
@@ -231,7 +231,7 @@ export function DashboardSection() {
                   {["Fecha", "Software", "Tipo", "Estado"].map((h) => (
                     <th
                       key={h}
-                      className="px-5 py-2.5 text-[11px] font-semibold text-muted-foreground text-left"
+                      className="px-5 py-2.5 text-table-header text-left"
                     >
                       {h}
                     </th>
@@ -252,7 +252,7 @@ export function DashboardSection() {
                     </td>
                     <td className="px-5 py-3">
                       <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wide border ${
+                        className={`inline-flex items-center px-2 py-0.5 rounded-md text-badge font-bold tracking-wide border ${
                           r.tipo === "APROV"
                             ? "bg-emerald-50 text-emerald-600 border-emerald-200"
                             : "bg-orange-50 text-orange-500 border-orange-200"

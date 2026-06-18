@@ -11,10 +11,10 @@ export function ConfiguracionSection() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">
+        <h1 className="text-page-title">
           Configuración del Sistema
         </h1>
-        <p className="text-sm text-muted-foreground mt-0.5">
+        <p className="text-page-subtitle">
           Proveedores de licencias y sincronización automática con Banner
         </p>
       </div>
@@ -22,10 +22,10 @@ export function ConfiguracionSection() {
       <div className="bg-white rounded-xl border border-border shadow-sm p-6">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-base font-semibold text-foreground">
+            <h2 className="text-section-title">
               Configuración de Proveedores
             </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-section-subtitle">
               Mapeo de datos entre el sistema local y las APIs externas
             </p>
           </div>
@@ -97,10 +97,10 @@ export function ConfiguracionSection() {
       </div>
 
       <div className="bg-white rounded-xl border border-border shadow-sm p-6">
-        <h2 className="text-base font-semibold text-foreground">
+        <h2 className="text-section-title">
           Programador de Tareas
         </h2>
-        <p className="text-xs text-muted-foreground mt-0.5 mb-5">
+        <p className="text-section-subtitle mb-5">
           Configura la sincronización automática con Banner
         </p>
 

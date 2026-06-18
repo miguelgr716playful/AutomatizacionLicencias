@@ -41,10 +41,10 @@ export function ReportesSection() {
     <div className="space-y-5">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-page-title">
             Reportes e Historial
           </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
+          <p className="text-page-subtitle">
             Historial de asignaciones almacenado en Azure · Acceso de Auditor
           </p>
         </div>
@@ -100,7 +100,7 @@ export function ReportesSection() {
             style={{ borderLeftColor: c.border }}
           >
             <p
-              className="text-xl font-bold leading-tight"
+              className="text-stat-value"
               style={{ color: c.color }}
             >
               {c.value}
@@ -113,9 +113,9 @@ export function ReportesSection() {
 
       <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
         <div className="px-5 py-3 border-b border-border flex items-center gap-3 flex-wrap">
-          <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <h2 className="text-section-title flex items-center gap-2">
             Historial de Asignaciones
-            <span className="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-gray-100 text-muted-foreground">
+            <span className="px-1.5 py-0.5 rounded-md text-badge font-bold bg-gray-100 text-muted-foreground">
               {filtered.length}
             </span>
           </h2>
@@ -142,7 +142,7 @@ export function ReportesSection() {
                 <select
                   value={val}
                   onChange={(e) => set(e.target.value)}
-                  className="text-[11px] pl-2 pr-6 py-1.5 rounded-lg border border-border bg-white text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-400 appearance-none"
+                  className="text-xs pl-2 pr-6 py-1.5 rounded-lg border border-border bg-white text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-400 appearance-none"
                 >
                   {opts.map((o) => (
                     <option key={o}>{o}</option>
@@ -160,7 +160,7 @@ export function ReportesSection() {
                   setPage(1);
                 }}
                 placeholder="ID, nombre, clave..."
-                className="pl-6 pr-2 py-1.5 text-[11px] rounded-lg border border-border focus:outline-none focus:ring-1 focus:ring-emerald-400 w-40"
+                className="pl-6 pr-2 py-1.5 text-xs rounded-lg border border-border focus:outline-none focus:ring-1 focus:ring-emerald-400 w-40"
               />
             </div>
           </div>
@@ -183,7 +183,7 @@ export function ReportesSection() {
                 ].map((h) => (
                   <th
                     key={h || "actions"}
-                    className="px-3 py-2.5 text-[10px] font-bold text-muted-foreground text-left uppercase tracking-wide whitespace-nowrap"
+                    className="px-3 py-2.5 text-table-header text-left whitespace-nowrap"
                   >
                     {h}
                   </th>
@@ -200,37 +200,37 @@ export function ReportesSection() {
                 >
                   <td className="px-3 py-3 whitespace-nowrap">
                     <span
-                      className="font-mono text-[11px]"
+                      className="font-mono text-xs"
                       style={{ color: "#00B364" }}
                     >
                       {r.fecha}
                     </span>
-                    <span className="block font-mono text-[10px] text-muted-foreground">
+                    <span className="block font-mono text-xs text-muted-foreground">
                       {r.hora}
                     </span>
                   </td>
                   <td className="px-3 py-3 whitespace-nowrap">
-                    <span className="font-medium text-foreground text-[12px]">
+                    <span className="font-medium text-foreground text-xs">
                       {r.nombre}
                     </span>
                     <span
-                      className="block text-[10px] font-mono"
+                      className="block text-xs font-mono"
                       style={{ color: "#00B364" }}
                     >
                       {r.id}
                     </span>
                   </td>
-                  <td className="px-3 py-3 font-mono text-[11px] text-muted-foreground">
+                  <td className="px-3 py-3 font-mono text-xs text-muted-foreground">
                     {r.clave}
                   </td>
                   <td className="px-3 py-3">
-                    <span className="px-1.5 py-0.5 rounded border border-border text-[10px] font-medium text-muted-foreground">
+                    <span className="px-1.5 py-0.5 rounded border border-border text-badge font-medium text-muted-foreground">
                       {r.nivel}
                     </span>
                   </td>
                   <td className="px-3 py-3">
                     <span
-                      className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border ${
+                      className={`px-2 py-0.5 rounded-md text-badge border ${
                         r.software === "Minitab"
                           ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                           : "bg-teal-50 text-teal-700 border-teal-200"
@@ -241,7 +241,7 @@ export function ReportesSection() {
                   </td>
                   <td className="px-3 py-3">
                     <span
-                      className={`px-2 py-0.5 rounded-md text-[10px] font-semibold ${
+                      className={`px-2 py-0.5 rounded-md text-badge ${
                         r.accion === "Alta"
                           ? "bg-emerald-100 text-emerald-700"
                           : "bg-red-100 text-red-600"
@@ -252,7 +252,7 @@ export function ReportesSection() {
                   </td>
                   <td className="px-3 py-3">
                     <span
-                      className={`px-2 py-0.5 rounded-md text-[10px] font-semibold border ${
+                      className={`px-2 py-0.5 rounded-md text-badge border ${
                         r.origen === "ETL"
                           ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                           : "bg-amber-50 text-amber-700 border-amber-200"
@@ -261,7 +261,7 @@ export function ReportesSection() {
                       {r.origen}
                     </span>
                   </td>
-                  <td className="px-3 py-3 text-[11px] text-muted-foreground">
+                  <td className="px-3 py-3 text-xs text-muted-foreground">
                     {r.operador}
                   </td>
                   <td className="px-3 py-3">

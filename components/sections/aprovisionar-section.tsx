@@ -18,17 +18,17 @@ export function AprovisionarSection() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-foreground">
+        <h1 className="text-page-title">
           Aprovisionar Licencias
         </h1>
-        <p className="text-sm text-muted-foreground mt-0.5">
+        <p className="text-page-subtitle">
           Aprovisiona o revoca licencias de software usando archivos CSV con
           Claves Banner.
         </p>
       </div>
 
       <div className="max-w-3xl mx-auto bg-white rounded-xl border border-border shadow-sm p-8 space-y-6">
-        <h2 className="text-base font-semibold text-foreground">
+        <h2 className="text-section-title">
           Gestión de Licencias
         </h2>
 
