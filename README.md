@@ -26,7 +26,7 @@ npm install
 npm run dev
 ```
 
-Abre [http://localhost:3000](http://localhost:3000). La ruta raíz redirige a `/dashboard`.
+Abre [http://localhost:3000](http://localhost:3000). La ruta raíz redirige a `/login`.
 
 ## Producción
 
@@ -43,6 +43,7 @@ Ver [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md) para la arquitectura del sistem
 
 | Ruta | Descripción |
 |------|-------------|
+| `/login` | Inicio de sesión |
 | `/dashboard` | Panel general y métricas |
 | `/aprovisionar` | Alta/baja masiva de licencias vía CSV |
 | `/reportes` | Historial y auditoría |

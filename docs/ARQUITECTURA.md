@@ -65,7 +65,8 @@ AutomatizacionLicencias/
 ├── app/                          # App Router (Next.js)
 │   ├── layout.tsx                # Layout raíz + metadata + RoleProvider
 │   ├── globals.css               # Tema Tailwind y variables CSS
-│   ├── page.tsx                  # Redirección a /dashboard
+│   ├── page.tsx                  # Redirección a /login
+│   ├── login/page.tsx            # Pantalla de autenticación
 │   └── (app)/                    # Grupo de rutas con shell compartido
 │       ├── layout.tsx            # AppShell (sidebar + contenido)
 │       ├── dashboard/page.tsx
@@ -74,6 +75,8 @@ AutomatizacionLicencias/
 │       └── configuracion/page.tsx
 │
 ├── components/
+│   ├── auth/
+│   │   └── login-form.tsx        # Formulario de login
 │   ├── layout/                   # Shell de aplicación
 │   │   ├── app-shell.tsx         # Contenedor principal
 │   │   ├── sidebar.tsx           # Navegación lateral
