@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogIn } from "lucide-react";
-import { TecmilenioLogo } from "@/components/brand/tecmilenio-logo";
 
 export function LoginForm() {
   const router = useRouter();
@@ -20,10 +19,6 @@ export function LoginForm() {
   return (
     <div className="relative z-10 w-full max-w-md">
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-white/20 shadow-2xl p-8">
-        <div className="flex justify-center mb-8">
-          <TecmilenioLogo greenText className="scale-110" />
-        </div>
-
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-foreground">
             Automatización de Licencias
