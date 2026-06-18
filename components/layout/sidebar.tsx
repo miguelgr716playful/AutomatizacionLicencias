@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 import {
   NAV_ITEMS,
   ROLE_LABELS,
@@ -14,7 +15,12 @@ import { useRole } from "@/components/layout/role-provider";
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { role, setRole } = useRole();
+
+  const handleLogout = () => {
+    router.push("/login");
+  };
 
   return (
     <aside
@@ -106,7 +112,7 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="px-4 py-4 border-t border-white/10">
+      <div className="px-4 py-4 border-t border-white/10 space-y-3">
         <div className="flex items-center gap-2.5">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
@@ -114,13 +120,21 @@ export function Sidebar() {
           >
             {ROLE_INITIALS[role]}
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-medium text-white leading-tight">
               {ROLE_LABELS[role]}
             </p>
-            <p className="text-xs text-white/40">uni.edu.mx</p>
+            <p className="text-xs text-white/40 truncate">uni.edu.mx</p>
           </div>
         </div>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors border border-white/15"
+        >
+          <LogOut className="w-4 h-4 shrink-0" />
+          Cerrar sesión
+        </button>
       </div>
     </aside>
   );
