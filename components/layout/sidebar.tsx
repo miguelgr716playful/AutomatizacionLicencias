@@ -12,19 +12,34 @@ import {
   type Role,
 } from "@/lib/constants";
 import { useRole } from "@/components/layout/role-provider";
+import { cn } from "@/components/ui/utils";
 
-export function Sidebar() {
+interface SidebarProps {
+  onNavigate?: () => void;
+  className?: string;
+}
+
+export function Sidebar({ onNavigate, className }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { role, setRole } = useRole();
 
   const handleLogout = () => {
+    onNavigate?.();
     router.push("/login");
+  };
+
+  const handleRoleChange = (nextRole: Role) => {
+    setRole(nextRole);
+    onNavigate?.();
   };
 
   return (
     <aside
-      className="w-56 shrink-0 flex flex-col h-full text-white"
+      className={cn(
+        "w-56 shrink-0 flex flex-col h-full text-white",
+        className
+      )}
       style={{ backgroundColor: "#0B4D3C" }}
     >
       <div className="px-5 py-5 border-b border-white/10">
@@ -47,8 +62,8 @@ export function Sidebar() {
             <button
               key={r}
               type="button"
-              onClick={() => setRole(r)}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-left transition-colors"
+              onClick={() => handleRoleChange(r)}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 min-h-11 rounded-lg text-sm text-left transition-colors"
               style={role === r ? { backgroundColor: "#00B364" } : {}}
               onMouseEnter={(e) => {
                 if (role !== r)
@@ -90,6 +105,7 @@ export function Sidebar() {
             <Link
               key={item.id}
               href={item.href}
+              onClick={() => onNavigate?.()}
               style={active ? { backgroundColor: "#00B364" } : {}}
               onMouseEnter={(e) => {
                 if (!active)
@@ -100,7 +116,7 @@ export function Sidebar() {
                 if (!active)
                   (e.currentTarget as HTMLElement).style.backgroundColor = "";
               }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+              className={`w-full flex items-center gap-3 px-3 py-2.5 min-h-11 rounded-lg text-sm transition-colors ${
                 active ? "text-white font-medium" : "text-white/60 hover:text-white"
               }`}
             >
@@ -130,7 +146,7 @@ export function Sidebar() {
         <button
           type="button"
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors border border-white/15"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 min-h-11 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors border border-white/15"
         >
           <LogOut className="w-4 h-4 shrink-0" />
           Cerrar sesión

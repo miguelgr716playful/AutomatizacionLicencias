@@ -57,12 +57,14 @@ export function ReportesSection() {
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-90"
             style={{ backgroundColor: "#0B4D3C" }}
           >
-            <Download className="w-4 h-4" /> Exportar Reporte a Excel/CSV
+            <Download className="w-4 h-4" />
+            <span className="hidden sm:inline">Exportar Reporte a Excel/CSV</span>
+            <span className="sm:hidden">Exportar</span>
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
           {
             value: stats.totalMovimientos,
@@ -153,13 +155,52 @@ export function ReportesSection() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="ID, nombre, clave..."
-                className="pl-6 pr-2 py-1.5 text-xs rounded-lg border border-border focus:outline-none focus:ring-1 focus:ring-emerald-400 w-40"
+                className="pl-6 pr-2 py-2 sm:py-1.5 text-sm sm:text-xs rounded-lg border border-border focus:outline-none focus:ring-1 focus:ring-emerald-400 w-full sm:w-40"
               />
             </div>
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="md:hidden divide-y divide-border">
+          {paginated.map((r) => (
+            <div
+              key={`${r.id}-${r.fecha}-${r.hora}-card`}
+              className={`px-4 py-4 space-y-2 ${r.accion === "Baja" ? "bg-red-50/30" : ""}`}
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="font-medium text-sm text-foreground truncate">
+                    {r.nombre}
+                  </p>
+                  <p className="text-xs font-mono text-emerald-600">{r.id}</p>
+                </div>
+                <span
+                  className={`shrink-0 px-2 py-0.5 rounded-md text-xs font-semibold ${
+                    r.accion === "Alta"
+                      ? "bg-emerald-100 text-emerald-700"
+                      : "bg-red-100 text-red-600"
+                  }`}
+                >
+                  {r.accion}
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs">
+                <span className="px-2 py-0.5 rounded-md border border-border text-muted-foreground">
+                  {r.software}
+                </span>
+                <span className="px-2 py-0.5 rounded-md border border-border text-muted-foreground">
+                  {r.origen}
+                </span>
+                <span className="text-muted-foreground">{r.fecha} {r.hora}</span>
+              </div>
+              <p className="text-xs text-muted-foreground truncate">
+                {r.clave} · {r.operador}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
               <tr className="border-b border-border bg-gray-50/80">
@@ -287,7 +328,7 @@ export function ReportesSection() {
               type="button"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="w-7 h-7 rounded text-sm font-semibold text-muted-foreground hover:bg-gray-100 disabled:opacity-30 transition-colors"
+              className="min-w-10 min-h-10 flex items-center justify-center rounded text-sm font-semibold text-muted-foreground hover:bg-gray-100 disabled:opacity-30 transition-colors"
             >
               ‹
             </button>
@@ -296,7 +337,7 @@ export function ReportesSection() {
                 key={p}
                 type="button"
                 onClick={() => setPage(p)}
-                className="w-7 h-7 rounded text-xs font-semibold transition-colors"
+                className="min-w-10 min-h-10 flex items-center justify-center rounded text-xs font-semibold transition-colors"
                 style={
                   p === page
                     ? { backgroundColor: "#0B4D3C", color: "#fff" }
@@ -310,12 +351,12 @@ export function ReportesSection() {
               type="button"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="w-7 h-7 rounded text-sm font-semibold text-muted-foreground hover:bg-gray-100 disabled:opacity-30 transition-colors"
+              className="min-w-10 min-h-10 flex items-center justify-center rounded text-sm font-semibold text-muted-foreground hover:bg-gray-100 disabled:opacity-30 transition-colors"
             >
               ›
             </button>
           </div>
-          <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+          <span className="text-xs text-muted-foreground flex items-center gap-1.5 w-full sm:w-auto">
             <CalendarDays className="w-3.5 h-3.5" /> Registros sincronizados
             desde Azure · 17/6/2026
           </span>

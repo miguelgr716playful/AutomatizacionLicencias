@@ -38,7 +38,7 @@ export function AprovisionarSection() {
         </p>
       </div>
 
-      <div className="max-w-3xl mx-auto bg-white rounded-xl border border-border shadow-sm p-8 space-y-6">
+      <div className="max-w-3xl mx-auto bg-white rounded-xl border border-border shadow-sm p-4 sm:p-8 space-y-6">
         <h2 className="text-section-title">Gestión de Licencias</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -52,7 +52,7 @@ export function AprovisionarSection() {
                 onChange={(e) =>
                   setSoftware(e.target.value as SoftwareId | "")
                 }
-                className="w-full text-sm px-3 py-2.5 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none text-muted-foreground"
+                className="w-full text-base sm:text-sm px-3 py-3 sm:py-2.5 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none text-muted-foreground"
               >
                 <option value="">Seleccionar software</option>
                 <option value="adobe">Adobe Creative Cloud</option>
@@ -69,7 +69,7 @@ export function AprovisionarSection() {
               <select
                 value={periodo}
                 onChange={(e) => setPeriodo(e.target.value)}
-                className="w-full text-sm px-3 py-2.5 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none text-muted-foreground"
+                className="w-full text-base sm:text-sm px-3 py-3 sm:py-2.5 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none text-muted-foreground"
               >
                 <option value="">Seleccionar período</option>
                 <option value="ene-may-2024">Ene-May 2024</option>
@@ -221,7 +221,7 @@ export function AprovisionarSection() {
             type="button"
             onClick={() => procesar()}
             disabled={procesando}
-            className="px-6 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50"
+            className="w-full px-6 py-3 min-h-11 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 sm:w-auto"
           >
             {procesando ? "Procesando..." : "Procesar Archivo"}
           </button>

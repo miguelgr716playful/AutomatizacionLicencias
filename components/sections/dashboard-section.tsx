@@ -68,7 +68,7 @@ export function DashboardSection() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {data.stats.map((c, i) => {
           const Icon = STAT_ICONS[i] ?? Package;
           return (
@@ -130,8 +130,8 @@ export function DashboardSection() {
               </span>
             </div>
           </div>
-          <div className="flex-1">
-            <ResponsiveContainer width="100%" height={220}>
+          <div className="flex-1 min-w-0 h-[220px] sm:h-[280px]">
+            <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={data.tendencia}
                 margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
@@ -199,8 +199,9 @@ export function DashboardSection() {
               Últimas operaciones procesadas
             </p>
           </div>
-          <div className="flex-1 overflow-auto">
-            <table className="w-full">
+          <div className="flex-1 overflow-auto min-w-0">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[480px]">
               <thead>
                 <tr className="border-b border-border">
                   {["Fecha", "Software", "Tipo", "Estado"].map((h) => (
@@ -251,6 +252,7 @@ export function DashboardSection() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       </div>

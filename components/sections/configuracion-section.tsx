@@ -42,7 +42,7 @@ export function ConfiguracionSection() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {proveedores.map(({ nombre, icon, mapping }) => (
             <div key={nombre} className="border border-border rounded-xl p-5">
               <div className="flex items-center gap-2 mb-4">
