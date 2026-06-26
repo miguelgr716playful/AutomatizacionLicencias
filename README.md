@@ -1,6 +1,6 @@
 # Automatización de Licencias
 
-Plataforma web para gestionar licencias de software educativo (Adobe Creative Cloud, Minitab) en Tecmilenio.
+Plataforma webx para gestionar licencias de software educativo (Adobe Creative Cloud, Minitab) en Tecmilenio.
 
 ## Stack
 
