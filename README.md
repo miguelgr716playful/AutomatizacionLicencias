@@ -50,7 +50,9 @@ Ver [docs/DEPLOY-AZURE-SWA.md](docs/DEPLOY-AZURE-SWA.md) para el plan de publica
 
 1. Subir el repo a GitHub
 2. Crear el recurso **Static Web App** en Azure y conectar el repositorio
-3. Configurar el secret `AZURE_STATIC_WEB_APPS_API_TOKEN` (Azure lo crea al vincular GitHub)
+3. Configurar el secret en GitHub con el nombre exacto que espera el workflow:
+   **`AZURE_STATIC_WEB_APPS_API_TOKEN_HAPPY_CLIFF_0FFA2420F`**
+   (Azure Portal → SWA → Manage deployment token → copiar valor)
 4. Cada push a `main` despliega automáticamente; cada PR genera una preview URL
 
 **Demo (Azure SWA):** [https://happy-cliff-0ffa2420f.7.azurestaticapps.net](https://happy-cliff-0ffa2420f.7.azurestaticapps.net)
