@@ -110,15 +110,18 @@ export function ReportesSection() {
       </div>
 
       <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
-        <div className="px-5 py-3 border-b border-border flex items-center gap-3 flex-wrap">
+        <div className="px-4 sm:px-5 py-3 border-b border-border flex flex-col gap-3">
           <h2 className="text-section-title flex items-center gap-2">
             Historial de Asignaciones
             <span className="px-1.5 py-0.5 rounded-md text-badge font-bold bg-gray-100 text-muted-foreground">
               {filteredTotal}
             </span>
           </h2>
-          <div className="flex items-center gap-1.5 ml-auto flex-wrap">
-            <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 w-full">
+            <div className="flex items-center gap-1.5 sm:col-span-2 lg:col-span-4 lg:hidden text-xs text-muted-foreground">
+              <Filter className="w-3.5 h-3.5 shrink-0" />
+              Filtros
+            </div>
             {[
               {
                 val: filterSoftware,
@@ -136,26 +139,26 @@ export function ReportesSection() {
                 opts: ["ETL + Manual", "ETL", "Manual"],
               },
             ].map(({ val, set, opts }) => (
-              <div key={opts[0]} className="relative">
+              <div key={opts[0]} className="relative w-full">
                 <select
                   value={val}
                   onChange={(e) => set(e.target.value)}
-                  className="text-xs pl-2 pr-6 py-1.5 rounded-lg border border-border bg-white text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-400 appearance-none"
+                  className="w-full text-sm sm:text-xs pl-3 pr-8 py-2.5 sm:py-1.5 rounded-lg border border-border bg-white text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-400 appearance-none"
                 >
                   {opts.map((o) => (
                     <option key={o}>{o}</option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground pointer-events-none" />
+                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
               </div>
             ))}
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+            <div className="relative w-full sm:col-span-2 lg:col-span-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="ID, nombre, clave..."
-                className="pl-6 pr-2 py-2 sm:py-1.5 text-sm sm:text-xs rounded-lg border border-border focus:outline-none focus:ring-1 focus:ring-emerald-400 w-full sm:w-40"
+                className="w-full pl-9 pr-3 py-2.5 sm:py-1.5 text-sm sm:text-xs rounded-lg border border-border focus:outline-none focus:ring-1 focus:ring-emerald-400"
               />
             </div>
           </div>
@@ -313,8 +316,8 @@ export function ReportesSection() {
           </table>
         </div>
 
-        <div className="px-5 py-3.5 border-t border-border flex items-center justify-between gap-4 bg-gray-50/50 flex-wrap">
-          <span className="text-xs text-muted-foreground">
+        <div className="px-4 sm:px-5 py-3.5 border-t border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-gray-50/50">
+          <span className="text-xs text-muted-foreground order-2 sm:order-1">
             Mostrando{" "}
             <strong className="text-foreground">
               {(page - 1) * pageSize + 1}–
@@ -323,7 +326,7 @@ export function ReportesSection() {
             de <strong className="text-foreground">{filteredTotal}</strong>{" "}
             registros
           </span>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center justify-center gap-1.5 order-1 sm:order-2 flex-wrap">
             <button
               type="button"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -356,7 +359,7 @@ export function ReportesSection() {
               ›
             </button>
           </div>
-          <span className="text-xs text-muted-foreground flex items-center gap-1.5 w-full sm:w-auto">
+          <span className="text-xs text-muted-foreground flex items-center gap-1.5 order-3 w-full sm:w-auto">
             <CalendarDays className="w-3.5 h-3.5" /> Registros sincronizados
             desde Azure · 17/6/2026
           </span>
