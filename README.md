@@ -28,12 +28,30 @@ npm run dev
 
 Abre [http://localhost:3000](http://localhost:3000). La ruta raíz redirige a `/login`.
 
-## Producción
+## Producción (static export)
 
 ```bash
 npm run build
-npm start
+npx serve out
 ```
+
+El build genera la carpeta `out/` lista para Azure Static Web Apps.
+
+## Pruebas
+
+```bash
+npm test        # modo watch
+npm run test:run
+```
+
+## Despliegue
+
+Ver [docs/DEPLOY-AZURE-SWA.md](docs/DEPLOY-AZURE-SWA.md) para el plan de publicación en Azure Static Web Apps.
+
+1. Subir el repo a GitHub
+2. Crear el recurso **Static Web App** en Azure y conectar el repositorio
+3. Configurar el secret `AZURE_STATIC_WEB_APPS_API_TOKEN` (Azure lo crea al vincular GitHub)
+4. Cada push a `main` despliega automáticamente; cada PR genera una preview URL
 
 ## Documentación
 
