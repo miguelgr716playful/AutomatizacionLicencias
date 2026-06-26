@@ -53,6 +53,8 @@ Ver [docs/DEPLOY-AZURE-SWA.md](docs/DEPLOY-AZURE-SWA.md) para el plan de publica
 3. Configurar el secret `AZURE_STATIC_WEB_APPS_API_TOKEN` (Azure lo crea al vincular GitHub)
 4. Cada push a `main` despliega automáticamente; cada PR genera una preview URL
 
+**Demo (Azure SWA):** [https://happy-cliff-0ffa2420f.7.azurestaticapps.net](https://happy-cliff-0ffa2420f.7.azurestaticapps.net)
+
 ## Documentación
 
 | Documento | Contenido |
