@@ -3,7 +3,7 @@ import { AprovisionarLicenciasUseCase } from "../aprovisionar-licencias.use-case
 import type { ILicenciaRepository } from "@/domain/ports/licencia-repository.port";
 
 describe("AprovisionarLicenciasUseCase", () => {
-  it("lanza error si no hay archivo", async () => {
+  it("lanza error si no hay registros", async () => {
     const repo = { procesar: vi.fn() } as unknown as ILicenciaRepository;
     const useCase = new AprovisionarLicenciasUseCase(repo);
 
@@ -12,9 +12,9 @@ describe("AprovisionarLicenciasUseCase", () => {
         software: "adobe",
         periodo: "2026-1",
         tipo: "aprov",
-        archivoNombre: "",
+        registros: [],
       })
-    ).rejects.toThrow("Debe seleccionar un archivo CSV");
+    ).rejects.toThrow("Debe incluir al menos un registro del CSV");
 
     expect(repo.procesar).not.toHaveBeenCalled();
   });
@@ -23,22 +23,30 @@ describe("AprovisionarLicenciasUseCase", () => {
     const repo = {
       procesar: vi.fn().mockResolvedValue({
         operacionId: "OP-123",
-        registrosProcesados: 150,
+        registrosProcesados: 2,
         estado: "Completado",
         mensaje: "OK",
       }),
     } as unknown as ILicenciaRepository;
 
     const useCase = new AprovisionarLicenciasUseCase(repo);
+    const registros = [{ bannerId: "T001" }, { bannerId: "T002" }];
     const result = await useCase.ejecutar({
       software: "adobe",
       periodo: "2026-1",
       tipo: "aprov",
+      registros,
       archivoNombre: "alumnos.csv",
     });
 
     expect(result.operacionId).toBe("OP-123");
-    expect(result.registrosProcesados).toBe(150);
-    expect(repo.procesar).toHaveBeenCalledOnce();
+    expect(result.registrosProcesados).toBe(2);
+    expect(repo.procesar).toHaveBeenCalledWith({
+      software: "adobe",
+      periodo: "2026-1",
+      tipo: "aprov",
+      registros,
+      archivoNombre: "alumnos.csv",
+    });
   });
 });

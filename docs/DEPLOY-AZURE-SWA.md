@@ -8,17 +8,16 @@ Guía para publicar **Automatización de Licencias** en Azure Static Web Apps (S
 
 | Modelo | Cuándo usarlo | Para este proyecto |
 |--------|---------------|-------------------|
-| **Static** (`output: "export"`) | App sin SSR ni APIs de Next.js | **Recomendado ahora** |
-| **Hybrid** (`output: "standalone"`) | SSR, Server Components con datos, `/api/*` | Fase futura (backend real) |
+| **Static** (`output: "export"`) | Portal sin backend embebido | **Recomendado — implementado** |
+| **Hybrid** (`output: "standalone"`) | SSR + `/api/*` en Next.js | **No necesario** — la API vive en Azure Functions |
 
-La aplicación actual encaja en **modo Static** porque:
+El portal encaja en **modo Static** porque:
 
-- No tiene rutas `app/api/`
-- No usa `middleware.ts`
-- Los datos viven en mocks del cliente (`infrastructure/repositories/`)
-- La única lógica de servidor es `redirect("/login")` en la raíz
+- La API (BFF) está en **Azure Functions**, no en Next.js
+- ADF se invoca desde Functions, no desde el navegador
+- El CSV se parsea en cliente y se envía como JSON (`lib/csv-parser.ts`)
 
-**Ventajas del modo Static:** más estable, menor costo, evita problemas conocidos de timeout en deploy híbrido con Next.js 15.3+.
+**No se requiere migrar a hybrid Next.js** cuando se conecte el backend real.
 
 ---
 
@@ -38,10 +37,10 @@ flowchart TB
     end
 
     subgraph azure["Azure"]
-        SWA["Static Web App"]
+        SWA["Static Web App (portal)"]
         CDN["CDN global SWA"]
-        Fn["Azure Functions - futuro"]
-        API["Backend APIs - futuro"]
+        Fn["Azure Functions (BFF)"]
+        ADF["Azure Data Factory"]
     end
 
     Dev --> PR
@@ -50,8 +49,8 @@ flowchart TB
     Main --> GHA
     GHA -->|"production"| SWA
     SWA --> CDN
-    Fn -.->|"Fase 2"| SWA
-    API -.->|"Fase 2"| Fn
+    SWA -->|"Linked Backend"| Fn
+    Fn --> ADF
 ```
 
 ---
@@ -188,9 +187,11 @@ Al crear la SWA desde el portal, Azure genera `.github/workflows/azure-static-we
 | Parámetro | Valor |
 |-----------|-------|
 | `app_location` | `/` |
-| `api_location` | `""` (vacío en Fase 1) |
+| `api_location` | `""` (Functions es linked backend, no carpeta local) |
 | `output_location` | `out` |
 | `app_build_command` | `npm run build` |
+
+Vincular **Azure Functions** como Linked Backend en la SWA desde el portal de Azure.
 
 En la tarea de deploy, para static export:
 
@@ -287,45 +288,45 @@ Hoy no hay `.env` críticos (mocks). Preparar para integraciones futuras:
 
 | Variable | Cuándo | Dónde configurar |
 |----------|--------|------------------|
-| `NEXT_PUBLIC_API_URL` | Backend real | SWA → Configuration → Application settings |
-| `NEXT_PUBLIC_ADOBE_*` | Integración Adobe | Idem |
-| Secrets de API | Nunca en cliente | Azure Functions (fase backend) |
+| `NEXT_PUBLIC_API_BASE_URL` | Azure Functions (BFF) | SWA → Configuration → Application settings |
+| Token NAM | Auth producción | Pendiente doc identidad ITESM |
+| Secrets Adobe/Minitab | Nunca en front | Key Vault → Functions (validar Juan Manuel) |
 
 > En static export, solo variables `NEXT_PUBLIC_*` están disponibles en el cliente (se inlined en build).
 
 ---
 
-## 9. Autenticación (fase futura)
+## 9. Autenticación (fase futura — NAM)
 
-Hoy el login es demo (`router.push("/dashboard")`). Para producción en SWA:
+Hoy el login es demo (`router.push("/dashboard")`). Para producción:
 
-1. **Azure Entra ID (Easy Auth)** en la SWA
-2. Roles (`admin`, `ejecutor`, `auditor`) desde claims del token
-3. Rutas protegidas vía `staticwebapp.config.json` + validación en cliente
+1. Registrar la app con **identidad ITESM**: `dsi.identidad@itesm.mx`
+2. Integrar **NAM** según documentación del equipo identidad
+3. Roles (`admin`, `ejecutor`, `auditor`) desde claims del token
+4. Functions valida token en cada request
 
-Esto no bloquea el deploy inicial en modo demo.
+Ver [DECISIONES-ARQUITECTURA.md](./DECISIONES-ARQUITECTURA.md).
 
 ---
 
-## 10. Evolución a Hybrid (cuando haya backend)
+## 10. Backend con Azure Functions (sin hybrid Next.js)
 
-Cuando se conecten Banner, Adobe, Minitab o Azure Blob:
+Cuando Alfonso despliegue Azure Functions:
 
 ```mermaid
 flowchart LR
-    Static["Fase 1: Static export"] --> Hybrid["Fase 2: Hybrid Next.js"]
-    Hybrid --> API["Route Handlers /api/*"]
-    Hybrid --> SSR["SSR con datos reales"]
-    API --> Fn["Managed Functions en SWA"]
+    SWA["SWA static export"] -->|"NEXT_PUBLIC_API_BASE_URL"| Fn["Azure Functions"]
+    Fn --> ADF["Azure Data Factory"]
 ```
 
-Cambios necesarios:
+Pasos:
 
-- Quitar `output: "export"`
-- Añadir `output: "standalone"`
-- Crear `app/api/*` o Azure Functions vinculadas
-- Configurar `api_location` en el workflow
-- Si se usa middleware, excluir `/.swa/health.html` ([documentación Microsoft](https://learn.microsoft.com/en-us/azure/static-web-apps/deploy-nextjs-hybrid))
+1. Desplegar Azure Functions con endpoints `/v1/*`
+2. Vincular Functions como **Linked Backend** en la SWA
+3. Configurar `NEXT_PUBLIC_API_BASE_URL` en SWA
+4. En el portal, cambiar DI a `HttpLicenciaRepository` (y demás repos HTTP)
+
+**No es necesario** quitar `output: "export"` ni migrar a hybrid Next.js.
 
 ---
 
@@ -356,13 +357,13 @@ Cambios necesarios:
 - [ ] Dominio custom (ej. `licencias.tecmilenio.mx`)
 - [ ] Certificado SSL (automático en SWA)
 - [ ] Plan Standard si se requiere SLA / más entornos
-- [ ] Azure Entra ID para login real
+- [ ] Integración **NAM** para login real
 
 ### Fase 4 — Backend (cuando aplique)
 
-- [ ] Migrar a Hybrid o backend separado (App Service / API Management)
-- [ ] Sustituir mocks por APIs reales
-- [ ] Variables de entorno y Key Vault
+- [ ] Azure Functions desplegadas y vinculadas como Linked Backend
+- [ ] Sustituir mocks por repos HTTP (`HttpLicenciaRepository`, etc.)
+- [ ] Key Vault para credenciales Adobe/Minitab
 
 ---
 
@@ -397,6 +398,8 @@ Cambios necesarios:
 - [Deploy hybrid Next.js on SWA](https://learn.microsoft.com/en-us/azure/static-web-apps/deploy-nextjs-hybrid)
 - [Configuration file for SWA](https://learn.microsoft.com/en-us/azure/static-web-apps/configuration)
 - [Arquitectura del proyecto](./ARQUITECTURA.md)
+- [Decisiones de arquitectura Azure](./DECISIONES-ARQUITECTURA.md)
+- [Endpoints Épica 2](./EPICA-2-ENDPOINTS.md)
 
 ---
 

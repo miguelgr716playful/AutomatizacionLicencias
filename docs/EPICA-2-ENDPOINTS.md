@@ -1,8 +1,10 @@
 # Épica 2 — Endpoints front ↔ back
 
-Definición de endpoints necesarios entre el frontend (Next.js) y el backend, alineada con los casos de uso, hooks y módulos actuales del proyecto.
+Definición de endpoints entre el **portal (Next.js en SWA)** y **Azure Functions (BFF)**, que a su vez dispara **Azure Data Factory**.
 
-**Convención:** prefijo `/api/v1`, JSON (salvo upload/export), autenticación con Bearer JWT o cookie de sesión (Azure Entra ID en producción).
+**Convención:** prefijo `/v1` en Azure Functions, JSON, autenticación **NAM** (ITESM). Base URL: `NEXT_PUBLIC_API_BASE_URL`.
+
+Ver [DECISIONES-ARQUITECTURA.md](./DECISIONES-ARQUITECTURA.md) para el contexto de cada decisión.
 
 ---
 
@@ -10,7 +12,7 @@ Definición de endpoints necesarios entre el frontend (Next.js) y el backend, al
 
 ```mermaid
 flowchart LR
-    subgraph front["Frontend (Next.js)"]
+    subgraph front["Portal — Azure SWA"]
         Login["/login"]
         Dash["/dashboard"]
         Aprov["/aprovisionar"]
@@ -18,7 +20,7 @@ flowchart LR
         Config["/configuracion"]
     end
 
-    subgraph api["API /api/v1"]
+    subgraph fn["Azure Functions /v1"]
         Auth["auth/*"]
         D["dashboard"]
         L["licencias/*"]
@@ -27,13 +29,16 @@ flowchart LR
         Cat["catalogos/*"]
     end
 
+    subgraph adf["Azure Data Factory"]
+        Pipeline["Pipelines ETL"]
+    end
+
     Login --> Auth
     Dash --> D
-    Aprov --> L
+    Aprov -->|"JSON registros[]"| L
     Rep --> R
     Config --> C
-    Aprov --> Cat
-    Config --> Cat
+    L --> Pipeline
 ```
 
 ---
@@ -42,10 +47,10 @@ flowchart LR
 
 | Método | Endpoint | Rol | Descripción |
 |--------|----------|-----|-------------|
-| `POST` | `/api/v1/auth/login` | Público | Login (o redirect SSO Entra ID) |
-| `GET` | `/api/v1/auth/me` | Autenticado | Usuario + rol (`admin` \| `ejecutor` \| `auditor`) |
-| `POST` | `/api/v1/auth/logout` | Autenticado | Cerrar sesión |
-| `POST` | `/api/v1/auth/refresh` | Autenticado | Renovar token (si se usa JWT) |
+| `POST` | `/v1/auth/login` | Público | Login vía **NAM** (pendiente doc identidad) |
+| `GET` | `/v1/auth/me` | Autenticado | Usuario + rol (`admin` \| `ejecutor` \| `auditor`) |
+| `POST` | `/v1/auth/logout` | Autenticado | Cerrar sesión |
+| `POST` | `/v1/auth/refresh` | Autenticado | Renovar token (si aplica) |
 
 **Response `GET /auth/me` (ejemplo):**
 
@@ -66,7 +71,7 @@ flowchart LR
 
 | Método | Endpoint | Roles |
 |--------|----------|-------|
-| `GET` | `/api/v1/dashboard` | admin, auditor |
+| `GET` | `/v1/dashboard` | admin, auditor |
 
 **Query params (opcionales):**
 
@@ -108,24 +113,44 @@ flowchart LR
 
 **Caso de uso:** `AprovisionarLicenciasUseCase` · **Hook:** `useAprovisionar`
 
-> El front hoy solo envía `archivoNombre`. El backend debe recibir el CSV real vía `multipart/form-data`.
+> El portal parsea el CSV en el navegador (`lib/csv-parser.ts`) y envía **JSON en memoria**. No se usa Blob Storage ni `multipart/form-data`. Functions dispara ADF.
 
 | Método | Endpoint | Roles | Descripción |
 |--------|----------|-------|-------------|
-| `POST` | `/api/v1/licencias/operaciones` | admin, ejecutor | Inicia alta/baja masiva |
-| `GET` | `/api/v1/licencias/operaciones/{operacionId}` | admin, ejecutor | Estado de operación (async) |
-| `GET` | `/api/v1/licencias/operaciones` | admin, ejecutor | Historial reciente (opcional) |
+| `POST` | `/v1/licencias/operaciones` | admin, ejecutor | Recibe registros JSON y dispara ADF |
+| `GET` | `/v1/licencias/operaciones/{operacionId}` | admin, ejecutor | Estado de operación (async) |
+| `GET` | `/v1/licencias/operaciones` | admin, ejecutor | Historial reciente (opcional) |
 
-### `POST /api/v1/licencias/operaciones`
+### `POST /v1/licencias/operaciones`
 
-**Content-Type:** `multipart/form-data`
+**Content-Type:** `application/json`
+
+**Request:**
+
+```json
+{
+  "software": "adobe",
+  "periodo": "ene-may-2025",
+  "tipo": "aprov",
+  "archivoNombre": "alumnos.csv",
+  "registros": [
+    {
+      "bannerId": "T00123456",
+      "email": "alumno@tecmilenio.mx",
+      "nombres": "Juan",
+      "apellidos": "Pérez"
+    }
+  ]
+}
+```
 
 | Campo | Tipo | Requerido |
 |-------|------|-----------|
 | `software` | `adobe` \| `minitab` | Sí |
 | `periodo` | string | Sí |
 | `tipo` | `aprov` \| `desaprov` | Sí |
-| `archivo` | file (CSV) | Sí |
+| `registros` | `RegistroBanner[]` | Sí |
+| `archivoNombre` | string | No (referencia en auditoría) |
 
 **Response 202 (async):**
 
@@ -149,7 +174,7 @@ flowchart LR
 }
 ```
 
-### `GET /api/v1/licencias/operaciones/{operacionId}`
+### `GET /v1/licencias/operaciones/{operacionId}`
 
 ```json
 {
@@ -160,7 +185,7 @@ flowchart LR
   "registrosFallidos": 2,
   "estado": "Completado",
   "mensaje": "148 OK, 2 pendientes de revisión",
-  "detalleErroresUrl": "/api/v1/licencias/operaciones/OP-ABC123/errores.csv"
+  "detalleErroresUrl": "/v1/licencias/operaciones/OP-ABC123/errores.csv"
 }
 ```
 
@@ -172,12 +197,12 @@ flowchart LR
 
 | Método | Endpoint | Roles | Descripción |
 |--------|----------|-------|-------------|
-| `GET` | `/api/v1/reportes` | admin, auditor | Listado paginado + filtros + estadísticas |
-| `GET` | `/api/v1/reportes/estadisticas` | admin, auditor | KPIs del panel (opcional, separado del listado) |
-| `GET` | `/api/v1/reportes/export` | admin, auditor | Export Excel/CSV |
-| `GET` | `/api/v1/reportes/{movimientoId}` | admin, auditor | Detalle de un movimiento |
+| `GET` | `/v1/reportes` | admin, auditor | Listado paginado + filtros + estadísticas |
+| `GET` | `/v1/reportes/estadisticas` | admin, auditor | KPIs del panel (opcional) |
+| `GET` | `/v1/reportes/export` | admin, auditor | Export Excel/CSV |
+| `GET` | `/v1/reportes/{movimientoId}` | admin, auditor | Detalle de un movimiento |
 
-### `GET /api/v1/reportes`
+### `GET /v1/reportes`
 
 **Query params:**
 
@@ -221,7 +246,7 @@ flowchart LR
 }
 ```
 
-### `GET /api/v1/reportes/export`
+### `GET /v1/reportes/export`
 
 Mismos filtros que el listado.
 
@@ -235,12 +260,12 @@ Mismos filtros que el listado.
 
 | Método | Endpoint | Roles | Descripción |
 |--------|----------|-------|-------------|
-| `GET` | `/api/v1/configuracion` | admin, ejecutor | Proveedores + programador |
-| `PATCH` | `/api/v1/configuracion/programador` | admin, ejecutor | Actualizar periodicidad ETL |
-| `PATCH` | `/api/v1/configuracion/proveedores/{softwareId}/mapping` | admin, ejecutor | Editar mapeo Banner ↔ API |
-| `POST` | `/api/v1/configuracion/proveedores` | admin | Registrar nuevo proveedor |
+| `GET` | `/v1/configuracion` | admin, ejecutor | Proveedores + programador |
+| `PATCH` | `/v1/configuracion/programador` | admin, ejecutor | Actualizar periodicidad ETL |
+| `PATCH` | `/v1/configuracion/proveedores/{softwareId}/mapping` | admin, ejecutor | Editar mapeo Banner ↔ API |
+| `POST` | `/v1/configuracion/proveedores` | admin | Registrar nuevo proveedor |
 
-### `GET /api/v1/configuracion`
+### `GET /v1/configuracion`
 
 ```json
 {
@@ -261,7 +286,7 @@ Mismos filtros que el listado.
 }
 ```
 
-### `PATCH /api/v1/configuracion/programador`
+### `PATCH /v1/configuracion/programador`
 
 **Request:**
 
@@ -271,7 +296,7 @@ Mismos filtros que el listado.
 
 **Response:** objeto `ProgramadorTareas` actualizado.
 
-### `PATCH /api/v1/configuracion/proveedores/{softwareId}/mapping`
+### `PATCH /v1/configuracion/proveedores/{softwareId}/mapping`
 
 **Request:**
 
@@ -291,9 +316,9 @@ Valores hoy hardcodeados en la UI; conviene servirlos desde el backend.
 
 | Método | Endpoint | Roles | Uso |
 |--------|----------|-------|-----|
-| `GET` | `/api/v1/catalogos/software` | Autenticado | Select en aprovisionar |
-| `GET` | `/api/v1/catalogos/periodos` | Autenticado | Select de período académico |
-| `GET` | `/api/v1/catalogos/filtros-reportes` | admin, auditor | Valores dinámicos de filtros |
+| `GET` | `/v1/catalogos/software` | Autenticado | Select en aprovisionar |
+| `GET` | `/v1/catalogos/periodos` | Autenticado | Select de período académico |
+| `GET` | `/v1/catalogos/filtros-reportes` | admin, auditor | Valores dinámicos de filtros |
 
 **Ejemplo `GET /catalogos/periodos`:**
 
@@ -312,9 +337,9 @@ Sincronización automática con Banner (mencionada en UI, sin caso de uso aún).
 
 | Método | Endpoint | Roles | Descripción |
 |--------|----------|-------|-------------|
-| `POST` | `/api/v1/jobs/sincronizacion-banner` | admin, sistema | Disparo manual del ETL |
-| `GET` | `/api/v1/jobs/sincronizacion-banner/ultima` | admin, ejecutor | Última ejecución y resultado |
-| `GET` | `/api/v1/health` | Público / interno | Health check para Azure |
+| `POST` | `/v1/jobs/sincronizacion-banner` | admin, sistema | Disparo manual del ETL |
+| `GET` | `/v1/jobs/sincronizacion-banner/ultima` | admin, ejecutor | Última ejecución y resultado |
+| `GET` | `/v1/health` | Público / interno | Health check |
 
 ---
 
@@ -324,29 +349,29 @@ Sincronización automática con Banner (mencionada en UI, sin caso de uso aún).
 
 | # | Método | Endpoint | Caso de uso |
 |---|--------|----------|-------------|
-| 1 | `GET` | `/api/v1/dashboard` | ObtenerDashboard |
-| 2 | `POST` | `/api/v1/licencias/operaciones` | AprovisionarLicencias |
-| 3 | `GET` | `/api/v1/reportes` | ObtenerReportes |
-| 4 | `GET` | `/api/v1/configuracion` | ObtenerConfiguracion |
-| 5 | `PATCH` | `/api/v1/configuracion/programador` | ActualizarPeriodicidad |
-| 6 | `GET` | `/api/v1/auth/me` | Sesión y rol |
+| 1 | `GET` | `/v1/dashboard` | ObtenerDashboard |
+| 2 | `POST` | `/v1/licencias/operaciones` | AprovisionarLicencias |
+| 3 | `GET` | `/v1/reportes` | ObtenerReportes |
+| 4 | `GET` | `/v1/configuracion` | ObtenerConfiguracion |
+| 5 | `PATCH` | `/v1/configuracion/programador` | ActualizarPeriodicidad |
+| 6 | `GET` | `/v1/auth/me` | Sesión y rol |
 
 ### Fase 2.1 (UI ya lo anticipa)
 
 | # | Método | Endpoint |
 |---|--------|----------|
-| 7 | `GET` | `/api/v1/reportes/export` |
-| 8 | `GET` | `/api/v1/licencias/operaciones/{operacionId}` |
-| 9 | `GET` | `/api/v1/catalogos/periodos` |
-| 10 | `PATCH` | `/api/v1/configuracion/proveedores/{softwareId}/mapping` |
+| 7 | `GET` | `/v1/reportes/export` |
+| 8 | `GET` | `/v1/licencias/operaciones/{operacionId}` |
+| 9 | `GET` | `/v1/catalogos/periodos` |
+| 10 | `PATCH` | `/v1/configuracion/proveedores/{softwareId}/mapping` |
 
 ### Fase 3–4 (producción institucional)
 
 | # | Método | Endpoint |
 |---|--------|----------|
-| 11 | `POST` | `/api/v1/auth/login` (+ SSO Entra ID) |
-| 12 | `POST` | `/api/v1/jobs/sincronizacion-banner` |
-| 13 | `GET` | `/api/v1/health` |
+| 11 | `POST` | `/v1/auth/login` (+ NAM) |
+| 12 | `POST` | `/v1/jobs/sincronizacion-banner` |
+| 13 | `GET` | `/v1/health` |
 
 ---
 
@@ -366,25 +391,27 @@ Sincronización automática con Banner (mencionada en UI, sin caso de uso aún).
 
 ---
 
-## 10. Cambio requerido en el frontend
+## 10. Flujo implementado en el frontend
 
-Hoy `useAprovisionar` solo envía el nombre del archivo:
+El hook `useAprovisionar` ya implementa el flujo acordado:
+
+1. `seleccionarArchivo(file)` → `parseCsvFile()` valida y cuenta registros
+2. `procesar()` → parsea CSV y llama al caso de uso con `registros[]`
+3. `HttpLicenciaRepository` (cuando `NEXT_PUBLIC_API_BASE_URL` esté configurada) envía JSON a Functions
 
 ```typescript
 // hooks/use-aprovisionar.ts
+const registros = await parseCsvFile(file);
 await container.aprovisionarLicencias.ejecutar({
   software,
   periodo,
   tipo: tipoOp,
-  archivoNombre: fileName, // ← falta el File real
+  registros,
+  archivoNombre: file.name,
 });
 ```
 
-Al conectar el backend:
-
-1. Guardar el objeto `File` (no solo `fileName`)
-2. Enviar `FormData` a `POST /api/v1/licencias/operaciones`
-3. Hacer polling a `GET /licencias/operaciones/{id}` si la respuesta es `202`
+Polling a `GET /v1/licencias/operaciones/{id}` si Functions responde `202`.
 
 ---
 
@@ -398,11 +425,12 @@ Al conectar el backend:
 | `GET /configuracion` | `ObtenerConfiguracionUseCase` | `useConfiguracion` | `IConfiguracionRepository` |
 | `PATCH /configuracion/programador` | `ActualizarPeriodicidadUseCase` | `useConfiguracion` | `IConfiguracionRepository` |
 
-Al implementar el backend, crear repositorios HTTP en `infrastructure/repositories/` que implementen los mismos puertos sin modificar dominio ni casos de uso.
+Al implementar Azure Functions, crear repositorios HTTP en `infrastructure/repositories/` (p. ej. `http-licencia.repository.ts`) que implementen los mismos puertos.
 
 ---
 
 ## Referencias
 
+- [Decisiones de arquitectura](./DECISIONES-ARQUITECTURA.md)
 - [Arquitectura del proyecto](./ARQUITECTURA.md)
 - [Plan de despliegue Azure SWA](./DEPLOY-AZURE-SWA.md)

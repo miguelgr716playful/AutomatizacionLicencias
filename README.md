@@ -46,7 +46,7 @@ npm run test:run
 
 ## Despliegue
 
-Ver [docs/DEPLOY-AZURE-SWA.md](docs/DEPLOY-AZURE-SWA.md) para el plan de publicación en Azure Static Web Apps.
+Ver [docs/DEPLOY-AZURE-SWA.md](docs/DEPLOY-AZURE-SWA.md) para el plan de publicación en Azure Static Web Apps + Azure Functions.
 
 1. Subir el repo a GitHub
 2. Crear el recurso **Static Web App** en Azure y conectar el repositorio
@@ -55,7 +55,12 @@ Ver [docs/DEPLOY-AZURE-SWA.md](docs/DEPLOY-AZURE-SWA.md) para el plan de publica
 
 ## Documentación
 
-Ver [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md) para la arquitectura del sistema, estructura de carpetas y decisiones técnicas.
+| Documento | Contenido |
+|-----------|-----------|
+| [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md) | Clean Architecture, flujos, stack |
+| [docs/DECISIONES-ARQUITECTURA.md](docs/DECISIONES-ARQUITECTURA.md) | Decisiones Azure (Functions, ADF, NAM, CSV) |
+| [docs/EPICA-2-ENDPOINTS.md](docs/EPICA-2-ENDPOINTS.md) | Contratos API front ↔ Functions |
+| [docs/DEPLOY-AZURE-SWA.md](docs/DEPLOY-AZURE-SWA.md) | Plan de despliegue en Azure SWA |
 
 ## Módulos
 

@@ -49,8 +49,8 @@ export function ReportesSection() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-border text-muted-foreground bg-white">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Azure
-            Blob Storage — Conectado
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Historial
+            sincronizado desde ETL
           </span>
           <button
             type="button"
