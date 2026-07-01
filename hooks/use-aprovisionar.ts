@@ -8,7 +8,6 @@ import { parseCsvFile } from "@/lib/csv-parser";
 
 export function useAprovisionar() {
   const [software, setSoftware] = useState<SoftwareId | "">("");
-  const [periodo, setPeriodo] = useState("");
   const [tipoOp, setTipoOp] = useState<TipoOperacion>("aprov");
   const [file, setFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
@@ -40,8 +39,8 @@ export function useAprovisionar() {
       setError("Selecciona un software");
       return;
     }
-    if (!periodo) {
-      setError("Selecciona un período académico");
+    if (!fileName) {
+      setError("Debe seleccionar un archivo CSV");
       return;
     }
     if (!file) {
@@ -57,7 +56,6 @@ export function useAprovisionar() {
       const registros = await parseCsvFile(file);
       const response = await container.aprovisionarLicencias.ejecutar({
         software,
-        periodo,
         tipo: tipoOp,
         registros,
         archivoNombre: file.name,
@@ -68,13 +66,11 @@ export function useAprovisionar() {
     } finally {
       setProcesando(false);
     }
-  }, [software, periodo, tipoOp, file]);
+  }, [software, tipoOp, fileName]);
 
   return {
     software,
     setSoftware,
-    periodo,
-    setPeriodo,
     tipoOp,
     setTipoOp,
     fileName,
