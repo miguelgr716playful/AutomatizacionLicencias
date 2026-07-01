@@ -15,7 +15,6 @@ export interface TendenciaMes {
 }
 
 export interface DashboardData {
-  periodo: string;
   stats: StatCard[];
   tendencia: TendenciaMes[];
   actividadReciente: ActividadLicencia[];

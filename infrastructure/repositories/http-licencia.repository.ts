@@ -23,7 +23,6 @@ export class HttpLicenciaRepository implements ILicenciaRepository {
       },
       body: JSON.stringify({
         software: input.software,
-        periodo: input.periodo,
         tipo: input.tipo,
         registros: input.registros,
         archivoNombre: input.archivoNombre,

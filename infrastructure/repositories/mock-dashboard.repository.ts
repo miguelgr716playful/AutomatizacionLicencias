@@ -8,7 +8,6 @@ import {
 export class MockDashboardRepository implements IDashboardRepository {
   async obtenerResumen(): Promise<DashboardData> {
     return {
-      periodo: "2026-Agosto",
       stats: [
         {
           label: "Total Licencias Activas",
@@ -17,15 +16,15 @@ export class MockDashboardRepository implements IDashboardRepository {
           trend: null,
         },
         {
-          label: "Aprovisionadas (Periodo)",
+          label: "Aprovisionadas",
           value: "1,150",
-          trend: "+12% vs periodo anterior",
+          trend: "+12% vs mes anterior",
           positive: true,
         },
         {
-          label: "Desaprovisionadas (Periodo)",
+          label: "Desaprovisionadas",
           value: "420",
-          trend: "-5% vs periodo anterior",
+          trend: "-5% vs mes anterior",
           positive: false,
         },
         {

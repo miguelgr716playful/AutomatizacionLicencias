@@ -233,7 +233,7 @@ sequenceDiagram
     participant Fn as Azure Functions
     participant ADF as Azure Data Factory
 
-    U->>UI: Selecciona software, período y tipo
+    U->>UI: Selecciona software y tipo
     U->>UI: Sube archivo CSV (claves Banner)
     UI->>Hook: seleccionarArchivo(file)
     Hook->>Parser: parseCsvFile()
@@ -290,7 +290,6 @@ erDiagram
     OPERACION {
         string id
         string tipo
-        string periodo
         datetime fecha
         string estado
     }

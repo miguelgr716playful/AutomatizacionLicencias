@@ -69,7 +69,7 @@ export function ReportesSection() {
           {
             value: stats.totalMovimientos,
             label: "Total movimientos",
-            sub: "Periodo 2026-Agosto",
+            sub: "Histórico acumulado",
             color: "#00B364",
             border: "#00B364",
           },

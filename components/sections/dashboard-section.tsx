@@ -37,7 +37,7 @@ export function DashboardSection() {
         <div>
           <h1 className="text-page-title">Panel General</h1>
           <p className="text-page-subtitle">
-            Resumen en tiempo real — Periodo {data.periodo}
+            Resumen en tiempo real de licencias activas
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">

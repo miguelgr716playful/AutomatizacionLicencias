@@ -13,8 +13,6 @@ export function AprovisionarSection() {
   const {
     software,
     setSoftware,
-    periodo,
-    setPeriodo,
     tipoOp,
     setTipoOp,
     fileName,
@@ -41,43 +39,23 @@ export function AprovisionarSection() {
       <div className="max-w-3xl mx-auto bg-white rounded-xl border border-border shadow-sm p-4 sm:p-8 space-y-6">
         <h2 className="text-section-title">Gestión de Licencias</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium text-foreground block mb-1.5">
-              Software
-            </label>
-            <div className="relative">
-              <select
-                value={software}
-                onChange={(e) =>
-                  setSoftware(e.target.value as SoftwareId | "")
-                }
-                className="w-full text-base sm:text-sm px-3 py-3 sm:py-2.5 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none text-muted-foreground"
-              >
-                <option value="">Seleccionar software</option>
-                <option value="adobe">Adobe Creative Cloud</option>
-                <option value="minitab">Minitab</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-            </div>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-foreground block mb-1.5">
-              Período Académico
-            </label>
-            <div className="relative">
-              <select
-                value={periodo}
-                onChange={(e) => setPeriodo(e.target.value)}
-                className="w-full text-base sm:text-sm px-3 py-3 sm:py-2.5 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none text-muted-foreground"
-              >
-                <option value="">Seleccionar período</option>
-                <option value="ene-may-2024">Ene-May 2024</option>
-                <option value="sep-dic-2024">Sep-Dic 2024</option>
-                <option value="ene-may-2025">Ene-May 2025</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-            </div>
+        <div>
+          <label className="text-sm font-medium text-foreground block mb-1.5">
+            Software
+          </label>
+          <div className="relative">
+            <select
+              value={software}
+              onChange={(e) =>
+                setSoftware(e.target.value as SoftwareId | "")
+              }
+              className="w-full text-base sm:text-sm px-3 py-3 sm:py-2.5 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none text-muted-foreground"
+            >
+              <option value="">Seleccionar software</option>
+              <option value="adobe">Adobe Creative Cloud</option>
+              <option value="minitab">Minitab</option>
+            </select>
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           </div>
         </div>
 

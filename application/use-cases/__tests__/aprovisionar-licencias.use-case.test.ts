@@ -10,7 +10,6 @@ describe("AprovisionarLicenciasUseCase", () => {
     await expect(
       useCase.ejecutar({
         software: "adobe",
-        periodo: "2026-1",
         tipo: "aprov",
         registros: [],
       })
@@ -33,7 +32,6 @@ describe("AprovisionarLicenciasUseCase", () => {
     const registros = [{ bannerId: "T001" }, { bannerId: "T002" }];
     const result = await useCase.ejecutar({
       software: "adobe",
-      periodo: "2026-1",
       tipo: "aprov",
       registros,
       archivoNombre: "alumnos.csv",
@@ -43,7 +41,6 @@ describe("AprovisionarLicenciasUseCase", () => {
     expect(result.registrosProcesados).toBe(2);
     expect(repo.procesar).toHaveBeenCalledWith({
       software: "adobe",
-      periodo: "2026-1",
       tipo: "aprov",
       registros,
       archivoNombre: "alumnos.csv",

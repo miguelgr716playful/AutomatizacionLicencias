@@ -271,7 +271,6 @@ describe("AprovisionarLicenciasUseCase", () => {
     await expect(
       useCase.ejecutar({
         software: "adobe",
-        periodo: "2026-1",
         tipo: "aprov",
         archivoNombre: "",
       })

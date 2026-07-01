@@ -10,7 +10,6 @@ export interface RegistroBanner {
 
 export interface AprovisionarRequest {
   software: SoftwareId;
-  periodo: string;
   tipo: TipoOperacion;
   registros: RegistroBanner[];
   /** Nombre del archivo original; solo referencia en mensajes de auditoría */

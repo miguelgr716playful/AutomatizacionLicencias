@@ -73,17 +73,10 @@ flowchart LR
 |--------|----------|-------|
 | `GET` | `/v1/dashboard` | admin, auditor |
 
-**Query params (opcionales):**
-
-| Param | Descripción |
-|-------|-------------|
-| `periodo` | Filtrar métricas por período académico |
-
 **Response 200:**
 
 ```json
 {
-  "periodo": "2026-Agosto",
   "stats": [
     {
       "label": "Licencias activas",
@@ -130,7 +123,6 @@ flowchart LR
 ```json
 {
   "software": "adobe",
-  "periodo": "ene-may-2025",
   "tipo": "aprov",
   "archivoNombre": "alumnos.csv",
   "registros": [
@@ -147,7 +139,6 @@ flowchart LR
 | Campo | Tipo | Requerido |
 |-------|------|-----------|
 | `software` | `adobe` \| `minitab` | Sí |
-| `periodo` | string | Sí |
 | `tipo` | `aprov` \| `desaprov` | Sí |
 | `registros` | `RegistroBanner[]` | Sí |
 | `archivoNombre` | string | No (referencia en auditoría) |
@@ -317,17 +308,7 @@ Valores hoy hardcodeados en la UI; conviene servirlos desde el backend.
 | Método | Endpoint | Roles | Uso |
 |--------|----------|-------|-----|
 | `GET` | `/v1/catalogos/software` | Autenticado | Select en aprovisionar |
-| `GET` | `/v1/catalogos/periodos` | Autenticado | Select de período académico |
 | `GET` | `/v1/catalogos/filtros-reportes` | admin, auditor | Valores dinámicos de filtros |
-
-**Ejemplo `GET /catalogos/periodos`:**
-
-```json
-[
-  { "id": "ene-may-2025", "label": "Ene-May 2025" },
-  { "id": "sep-dic-2025", "label": "Sep-Dic 2025" }
-]
-```
 
 ---
 
@@ -362,7 +343,7 @@ Sincronización automática con Banner (mencionada en UI, sin caso de uso aún).
 |---|--------|----------|
 | 7 | `GET` | `/v1/reportes/export` |
 | 8 | `GET` | `/v1/licencias/operaciones/{operacionId}` |
-| 9 | `GET` | `/v1/catalogos/periodos` |
+| 9 | `GET` | `/v1/catalogos/software` |
 | 10 | `PATCH` | `/v1/configuracion/proveedores/{softwareId}/mapping` |
 
 ### Fase 3–4 (producción institucional)
@@ -404,7 +385,6 @@ El hook `useAprovisionar` ya implementa el flujo acordado:
 const registros = await parseCsvFile(file);
 await container.aprovisionarLicencias.ejecutar({
   software,
-  periodo,
   tipo: tipoOp,
   registros,
   archivoNombre: file.name,
