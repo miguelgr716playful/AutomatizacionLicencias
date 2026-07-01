@@ -13,12 +13,12 @@ const gateways = {
 export class MockLicenciaRepository implements ILicenciaRepository {
   async procesar(input: ProcesarLicenciasInput): Promise<ResultadoOperacion> {
     const gateway = gateways[input.software];
-    const registrosSimulados = 150;
+    const totalRegistros = input.registros.length;
     const tipoApi = input.tipo === "aprov" ? "alta" : "baja";
 
     const { exitosos, fallidos } = await gateway.procesarLote(
       tipoApi,
-      registrosSimulados
+      totalRegistros
     );
 
     const operacionId = `OP-${Date.now().toString(36).toUpperCase()}`;
@@ -33,7 +33,9 @@ export class MockLicenciaRepository implements ILicenciaRepository {
       mensaje:
         fallidos > 0
           ? `${exitosos} registros procesados, ${fallidos} pendientes de revisión`
-          : `${exitosos} registros procesados correctamente desde ${input.archivoNombre}`,
+          : `${exitosos} registros procesados correctamente${
+              input.archivoNombre ? ` desde ${input.archivoNombre}` : ""
+            }`,
     };
   }
 }

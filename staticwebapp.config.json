@@ -1,0 +1,9 @@
+{
+  "navigationFallback": {
+    "rewrite": "/login/index.html",
+    "exclude": ["/_next/*", "/*.{css,js,png,jpg,jpeg,gif,svg,ico,woff,woff2}"]
+  },
+  "routes": [
+    { "route": "/", "redirect": "/login", "statusCode": 302 }
+  ]
+}

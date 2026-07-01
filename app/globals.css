@@ -104,7 +104,7 @@
 
 @layer components {
   .text-page-title {
-    @apply text-2xl font-bold text-foreground;
+    @apply text-xl sm:text-2xl font-bold text-foreground;
   }
 
   .text-page-subtitle {
@@ -112,7 +112,7 @@
   }
 
   .text-section-title {
-    @apply text-base font-semibold text-foreground;
+    @apply text-sm sm:text-base font-semibold text-foreground;
   }
 
   .text-section-subtitle {
@@ -120,7 +120,7 @@
   }
 
   .text-stat-value {
-    @apply text-2xl font-bold leading-tight tracking-tight;
+    @apply text-xl sm:text-2xl font-bold leading-tight tracking-tight;
   }
 
   .text-table-header {

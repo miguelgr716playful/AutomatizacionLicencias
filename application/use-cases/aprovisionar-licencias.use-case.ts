@@ -8,13 +8,14 @@ export class AprovisionarLicenciasUseCase {
   constructor(private readonly licenciaRepo: ILicenciaRepository) {}
 
   async ejecutar(input: AprovisionarRequest): Promise<AprovisionarResponse> {
-    if (!input.archivoNombre) {
-      throw new Error("Debe seleccionar un archivo CSV");
+    if (!input.registros.length) {
+      throw new Error("Debe incluir al menos un registro del CSV");
     }
 
     const resultado = await this.licenciaRepo.procesar({
       software: input.software,
       tipo: input.tipo,
+      registros: input.registros,
       archivoNombre: input.archivoNombre,
     });
 

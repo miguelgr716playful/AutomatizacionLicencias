@@ -24,6 +24,8 @@ La aplicación está construida con **Next.js 15 (App Router)**, **React 18** y 
 
 ## 3. Diagrama de arquitectura
 
+### 3.1 Capas del portal (Clean Architecture)
+
 ```mermaid
 flowchart TB
     subgraph Presentacion["Presentación"]
@@ -42,15 +44,9 @@ flowchart TB
         Ports["ports/"]
     end
 
-    subgraph Infra["Infraestructura"]
-        Repos["repositories/ (mock)"]
-        Adapters["adapters/ (Adobe, Minitab)"]
+    subgraph Infra["Infraestructura (portal)"]
+        Repos["repositories/ (mock | http)"]
         DI["di/container.ts"]
-    end
-
-    subgraph Futuro["Integraciones futuras"]
-        Banner["Banner SIS"]
-        Azure["Azure Blob Storage"]
     end
 
     Pages --> Sections
@@ -59,12 +55,44 @@ flowchart TB
     DI --> UseCases
     UseCases --> Ports
     Repos -.->|implementa| Ports
-    Adapters -.->|implementa| Ports
-    Repos -.-> Azure
-    Adapters -.-> Banner
 ```
 
-> **Nota:** La versión actual usa repositorios mock en `infrastructure/`. Al conectar APIs reales, se sustituyen las implementaciones mock sin modificar dominio ni casos de uso.
+### 3.2 Integración Azure (decisión de proyecto)
+
+```mermaid
+flowchart LR
+    subgraph portal["Portal — Azure SWA"]
+        Next["Next.js static export"]
+    end
+
+    subgraph bff["Capa intermedia"]
+        Fn["Azure Functions"]
+    end
+
+    subgraph etl["Procesamiento"]
+        ADF["Azure Data Factory"]
+        SHIR["Self-hosted IR"]
+        Banner["Banner 8.7 on-prem"]
+    end
+
+    subgraph proveedores["Proveedores"]
+        Adobe["Adobe API"]
+        Minitab["Minitab API"]
+    end
+
+    subgraph identity["Identidad"]
+        NAM["NAM / ITESM"]
+    end
+
+    Next -->|"JSON en memoria"| Fn
+    Next --> NAM
+    Fn -->|"Trigger pipeline"| ADF
+    ADF --> SHIR --> Banner
+    ADF --> Adobe
+    ADF --> Minitab
+```
+
+> **Nota:** El CSV del Ejecutor **no se guarda en Blob Storage**. El portal parsea el archivo y envía `registros[]` como JSON a Azure Functions, que dispara ADF. Ver [DECISIONES-ARQUITECTURA.md](./DECISIONES-ARQUITECTURA.md).
 
 ---
 
@@ -113,6 +141,8 @@ AutomatizacionLicencias/
 │
 ├── lib/
 │   ├── constants.ts              # Rutas, roles y navegación
+│   ├── csv-parser.ts             # Parseo CSV → RegistroBanner[] (cliente)
+│   ├── api-config.ts             # URL base Azure Functions
 │   └── mock-data.ts              # Reexport temporal (deprecated)
 │
 ├── public/
@@ -155,7 +185,7 @@ El selector de rol (Administrador / Ejecutor / Auditor) vive en un React Context
 - Filtra ítems de navegación visibles en el sidebar.
 - Redirige automáticamente si el usuario cambia a un rol sin acceso a la ruta actual.
 
-En producción, el rol debería provenir de autenticación (JWT, SSO institucional) y validarse en middleware de Next.js.
+En producción, el rol debe provenir de **NAM** (autenticación institucional ITESM) y validarse en el portal y en Azure Functions.
 
 ### 5.4 Clean Architecture — flujo de dependencias
 
@@ -184,7 +214,7 @@ Casos de uso actuales:
 | `ObtenerReportesUseCase` | `useReportes` | reportes |
 | `ObtenerConfiguracionUseCase` | `useConfiguracion` | configuración |
 
-Al conectar APIs reales, crear implementaciones en `infrastructure/repositories/` (p. ej. `azure-reporte.repository.ts`) que implementen los mismos puertos.
+Al conectar APIs reales, crear implementaciones HTTP en `infrastructure/repositories/` (p. ej. `http-licencia.repository.ts`) que llamen a **Azure Functions** sin modificar dominio ni casos de uso.
 
 ---
 
@@ -197,17 +227,24 @@ sequenceDiagram
     participant U as Ejecutor
     participant UI as AprovisionarSection
     participant Hook as useAprovisionar
+    participant Parser as csv-parser
     participant UC as AprovisionarLicenciasUseCase
     participant Repo as LicenciaRepository
-    participant Prov as Proveedor (Adobe/Minitab)
+    participant Fn as Azure Functions
+    participant ADF as Azure Data Factory
 
     U->>UI: Selecciona software, período y tipo
     U->>UI: Sube archivo CSV (claves Banner)
-    UI->>Hook: procesar()
-    Hook->>UC: ejecutar(dto)
+    UI->>Hook: seleccionarArchivo(file)
+    Hook->>Parser: parseCsvFile()
+    Parser-->>Hook: registros[]
+    U->>UI: Procesar
+    Hook->>UC: ejecutar({ registros, ... })
     UC->>Repo: procesar(input)
-    Repo->>Prov: procesarLote()
-    Prov-->>Repo: exitosos / fallidos
+    Repo->>Fn: POST JSON (sin Blob)
+    Fn->>ADF: Trigger pipeline
+    ADF-->>Fn: operacionId / estado
+    Fn-->>Repo: respuesta
     Repo-->>UC: ResultadoOperacion
     UC-->>Hook: AprovisionarResponse
     Hook-->>UI: resultado + mensaje
@@ -284,33 +321,38 @@ erDiagram
 
 **Recomendaciones para producción:**
 
-1. Middleware de Next.js para validar sesión y rol en cada ruta.
-2. API Routes protegidas con tokens de servicio para Adobe/Minitab.
-3. Variables de entorno para credenciales (`.env.local`, nunca en repositorio).
-4. Auditoría inmutable en Azure Blob Storage.
+1. Autenticación **NAM** gestionada con `dsi.identidad@itesm.mx`.
+2. Azure Functions valida token/sesión y rol antes de disparar ADF.
+3. Credenciales Adobe/Minitab en **Key Vault** (validar con Juan Manuel).
+4. Self-hosted IR para Banner 8.7 (validar con Oliver).
+5. Auditoría de movimientos vía salida del ETL (origen por confirmar).
 
 ---
 
-## 9. Variables de entorno (planificadas)
+## 9. Variables de entorno
+
+### Portal (front — SWA)
 
 ```env
-# Adobe
+# Azure Functions (BFF)
+NEXT_PUBLIC_API_BASE_URL=https://func-licencias.azurewebsites.net/api
+```
+
+### Backend (Azure Functions / ADF — no en el repositorio)
+
+```env
+# Key Vault references — validar con Juan Manuel
 ADOBE_CLIENT_ID=
 ADOBE_CLIENT_SECRET=
 ADOBE_ORG_ID=
-
-# Minitab
 MINITAB_API_KEY=
 MINITAB_BASE_URL=
 
-# Azure
-AZURE_STORAGE_CONNECTION_STRING=
-AZURE_CONTAINER_REPORTES=
-
-# Banner / ETL
-BANNER_API_URL=
-BANNER_API_TOKEN=
+# ADF
+ADF_PIPELINE_TRIGGER_URL=
 ```
+
+> Las credenciales de proveedores **nunca** van en el front. Solo `NEXT_PUBLIC_*` en SWA.
 
 ---
 
@@ -327,10 +369,10 @@ BANNER_API_TOKEN=
 
 ## 11. Roadmap técnico
 
-1. **Fase 1 (actual):** UI funcional, Clean Architecture con repositorios mock y navegación por roles.
-2. **Fase 2:** Sustituir repositorios mock por implementaciones reales (API Routes, Adobe, Minitab, Azure).
-3. **Fase 3:** Autenticación institucional (SSO) y middleware de autorización.
-4. **Fase 4:** Persistencia en Azure y jobs programados (sincronización Banner).
+1. **Fase 1 (actual):** UI funcional, Clean Architecture con repositorios mock, parseo CSV en cliente, deploy SWA static.
+2. **Fase 2:** Repositorios HTTP → Azure Functions → ADF; sustituir mocks.
+3. **Fase 3:** Autenticación **NAM** y autorización por rol en portal + Functions.
+4. **Fase 4:** Jobs programados Banner (ADF + SHIR) y reportes desde ETL.
 5. **Fase 5:** Tests E2E (Playwright) y monitoreo de operaciones masivas.
 
 ---
@@ -345,7 +387,17 @@ BANNER_API_TOKEN=
 | Client Components en secciones | Interactividad inmediata sin complejidad de hidratación en gráficas |
 | Clean Architecture | Dominio estable; infraestructura intercambiable sin tocar UI |
 | Repositorios mock | Desacopla UI de backends aún no implementados |
-| `components/ui/` shadcn | Base extensible para formularios y diálogos futuros |
+| SWA static + Functions | Portal sin backend embebido; API en Azure Functions |
+| CSV → JSON en memoria | Sin Blob Storage en upload; menor latencia y costo |
+| `HttpLicenciaRepository` | Listo para conectar cuando exista `NEXT_PUBLIC_API_BASE_URL` |
+
+---
+
+## 13. Documentación relacionada
+
+- [Decisiones de arquitectura Azure](./DECISIONES-ARQUITECTURA.md)
+- [Endpoints Épica 2](./EPICA-2-ENDPOINTS.md)
+- [Deploy Azure SWA](./DEPLOY-AZURE-SWA.md)
 
 ---
 

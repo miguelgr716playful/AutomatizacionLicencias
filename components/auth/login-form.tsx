@@ -18,7 +18,7 @@ export function LoginForm() {
 
   return (
     <div className="relative z-10 w-full max-w-md">
-      <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-white/20 shadow-2xl p-8">
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-white/20 shadow-2xl p-6 sm:p-8">
         <div className="text-center mb-8">
           <h1 className="text-page-title">
             Automatización de Licencias
@@ -43,7 +43,7 @@ export function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="usuario@tecmilenio.edu.mx"
               required
-              className="w-full text-sm px-3 py-2.5 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full text-base sm:text-sm px-3 py-3 sm:py-2.5 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
 
@@ -61,14 +61,14 @@ export function LoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full text-sm px-3 py-2.5 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              className="w-full text-base sm:text-sm px-3 py-3 sm:py-2.5 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-70"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 min-h-11 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-70"
           >
             <LogIn className="w-4 h-4" />
             {loading ? "Ingresando..." : "Iniciar sesión"}

@@ -16,7 +16,8 @@ export function AprovisionarSection() {
     tipoOp,
     setTipoOp,
     fileName,
-    setFileName,
+    registroCount,
+    seleccionarArchivo,
     drag,
     setDrag,
     procesando,
@@ -35,9 +36,8 @@ export function AprovisionarSection() {
         </p>
       </div>
 
-      <div className="max-w-3xl mx-auto bg-white rounded-xl border border-border shadow-sm p-8 space-y-6">
+      <div className="max-w-3xl mx-auto bg-white rounded-xl border border-border shadow-sm p-4 sm:p-8 space-y-6">
         <h2 className="text-section-title">Gestión de Licencias</h2>
-
         <div>
           <label className="text-sm font-medium text-foreground block mb-1.5">
             Software
@@ -132,16 +132,16 @@ export function AprovisionarSection() {
             onDrop={(e) => {
               e.preventDefault();
               setDrag(false);
-              const file = e.dataTransfer.files[0];
-              if (file) setFileName(file.name);
+              const dropped = e.dataTransfer.files[0];
+              if (dropped) seleccionarArchivo(dropped);
             }}
             onClick={() => {
               const input = document.createElement("input");
               input.type = "file";
               input.accept = ".csv";
               input.onchange = (e) => {
-                const file = (e.target as HTMLInputElement).files?.[0];
-                if (file) setFileName(file.name);
+                const selected = (e.target as HTMLInputElement).files?.[0];
+                if (selected) seleccionarArchivo(selected);
               };
               input.click();
             }}
@@ -153,7 +153,16 @@ export function AprovisionarSection() {
           >
             <Upload className="w-8 h-8 text-gray-400 mx-auto mb-3" />
             {fileName ? (
-              <p className="text-sm font-medium text-emerald-700">{fileName}</p>
+              <>
+                <p className="text-sm font-medium text-emerald-700">{fileName}</p>
+                {registroCount !== null && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {registroCount}{" "}
+                    {registroCount === 1 ? "registro listo" : "registros listos"} para
+                    enviar
+                  </p>
+                )}
+              </>
             ) : (
               <>
                 <p className="text-sm font-medium text-foreground">
@@ -189,7 +198,7 @@ export function AprovisionarSection() {
             type="button"
             onClick={() => procesar()}
             disabled={procesando}
-            className="px-6 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50"
+            className="w-full px-6 py-3 min-h-11 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 sm:w-auto"
           >
             {procesando ? "Procesando..." : "Procesar Archivo"}
           </button>

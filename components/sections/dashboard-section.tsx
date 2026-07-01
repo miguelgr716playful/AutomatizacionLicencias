@@ -68,7 +68,7 @@ export function DashboardSection() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {data.stats.map((c, i) => {
           const Icon = STAT_ICONS[i] ?? Package;
           return (
@@ -130,8 +130,8 @@ export function DashboardSection() {
               </span>
             </div>
           </div>
-          <div className="flex-1">
-            <ResponsiveContainer width="100%" height={220}>
+          <div className="flex-1 min-w-0 h-[220px] sm:h-[280px]">
+            <ResponsiveContainer width="100%" height="100%">
               <AreaChart
                 data={data.tendencia}
                 margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
@@ -199,7 +199,46 @@ export function DashboardSection() {
               Últimas operaciones procesadas
             </p>
           </div>
-          <div className="flex-1 overflow-auto">
+          <div className="flex-1 overflow-auto min-w-0">
+            <div className="md:hidden divide-y divide-border">
+              {data.actividadReciente.map((r) => (
+                <div
+                  key={`${r.fecha}-${r.software}-${r.tipo}-card`}
+                  className="px-4 py-3.5 flex items-center justify-between gap-3"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-foreground">
+                      {r.software}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {r.fecha}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1.5 shrink-0">
+                    <span
+                      className={`inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold tracking-wide border ${
+                        r.tipo === "APROV"
+                          ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                          : "bg-orange-50 text-orange-500 border-orange-200"
+                      }`}
+                    >
+                      {r.tipo === "APROV" ? "Aprovisionar" : "Desaprovisionar"}
+                    </span>
+                    <span
+                      className={`text-xs font-medium ${
+                        r.estado === "Completado"
+                          ? "text-emerald-600"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {r.estado}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden md:block overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-border">
@@ -233,7 +272,7 @@ export function DashboardSection() {
                             : "bg-orange-50 text-orange-500 border-orange-200"
                         }`}
                       >
-                        {r.tipo === "APROV" ? "APROV..." : "DESAP..."}
+                        {r.tipo === "APROV" ? "Aprovisionar" : "Desaprovisionar"}
                       </span>
                     </td>
                     <td className="px-5 py-3 text-xs font-medium">
@@ -251,6 +290,7 @@ export function DashboardSection() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       </div>
