@@ -14,7 +14,6 @@ export class AprovisionarLicenciasUseCase {
 
     const resultado = await this.licenciaRepo.procesar({
       software: input.software,
-      periodo: input.periodo,
       tipo: input.tipo,
       archivoNombre: input.archivoNombre,
     });

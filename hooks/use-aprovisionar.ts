@@ -7,7 +7,6 @@ import { container } from "@/infrastructure/di/container";
 
 export function useAprovisionar() {
   const [software, setSoftware] = useState<SoftwareId | "">("");
-  const [periodo, setPeriodo] = useState("");
   const [tipoOp, setTipoOp] = useState<TipoOperacion>("aprov");
   const [fileName, setFileName] = useState("");
   const [drag, setDrag] = useState(false);
@@ -20,8 +19,8 @@ export function useAprovisionar() {
       setError("Selecciona un software");
       return;
     }
-    if (!periodo) {
-      setError("Selecciona un período académico");
+    if (!fileName) {
+      setError("Debe seleccionar un archivo CSV");
       return;
     }
 
@@ -32,7 +31,6 @@ export function useAprovisionar() {
     try {
       const response = await container.aprovisionarLicencias.ejecutar({
         software,
-        periodo,
         tipo: tipoOp,
         archivoNombre: fileName,
       });
@@ -42,13 +40,11 @@ export function useAprovisionar() {
     } finally {
       setProcesando(false);
     }
-  }, [software, periodo, tipoOp, fileName]);
+  }, [software, tipoOp, fileName]);
 
   return {
     software,
     setSoftware,
-    periodo,
-    setPeriodo,
     tipoOp,
     setTipoOp,
     fileName,
