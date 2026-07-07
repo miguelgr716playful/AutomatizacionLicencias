@@ -1,9 +1,18 @@
 {
   "navigationFallback": {
-    "rewrite": "/login/index.html",
+    "rewrite": "/index.html",
     "exclude": ["/_next/*", "/*.{css,js,png,jpg,jpeg,gif,svg,ico,woff,woff2}"]
   },
   "routes": [
-    { "route": "/", "redirect": "/login", "statusCode": 302 }
+    { "route": "/login", "redirect": "/", "statusCode": 302 },
+    { "route": "/login/*", "redirect": "/", "statusCode": 302 },
+    { "route": "/dashboard", "redirect": "/", "statusCode": 302 },
+    { "route": "/dashboard/*", "redirect": "/", "statusCode": 302 },
+    { "route": "/aprovisionar", "redirect": "/", "statusCode": 302 },
+    { "route": "/aprovisionar/*", "redirect": "/", "statusCode": 302 },
+    { "route": "/reportes", "redirect": "/", "statusCode": 302 },
+    { "route": "/reportes/*", "redirect": "/", "statusCode": 302 },
+    { "route": "/configuracion", "redirect": "/", "statusCode": 302 },
+    { "route": "/configuracion/*", "redirect": "/", "statusCode": 302 }
   ]
 }
