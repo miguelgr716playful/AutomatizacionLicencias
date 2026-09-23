@@ -1,18 +1,14 @@
-"use client";
-
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { AppShell } from "@/components/layout/app-shell";
+import { AuthGate } from "@/components/layout/auth-gate";
 
 export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace("/");
-  }, [router]);
-
-  return null;
+  return (
+    <AuthGate>
+      <AppShell>{children}</AppShell>
+    </AuthGate>
+  );
 }

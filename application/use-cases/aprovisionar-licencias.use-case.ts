@@ -2,6 +2,7 @@ import type {
   AprovisionarRequest,
   AprovisionarResponse,
 } from "@/application/dto/aprovisionar.dto";
+import { validarNombreArchivoSoftware } from "@/domain/value-objects/software";
 import type { ILicenciaRepository } from "@/domain/ports/licencia-repository.port";
 
 export class AprovisionarLicenciasUseCase {
@@ -10,6 +11,10 @@ export class AprovisionarLicenciasUseCase {
   async ejecutar(input: AprovisionarRequest): Promise<AprovisionarResponse> {
     if (!input.registros.length) {
       throw new Error("Debe incluir al menos un registro del CSV");
+    }
+
+    if (input.archivoNombre) {
+      validarNombreArchivoSoftware(input.archivoNombre, input.software);
     }
 
     const resultado = await this.licenciaRepo.procesar({

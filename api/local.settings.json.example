@@ -1,0 +1,26 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "SAML_FUNCTIONS_BASE_URL": "https://ambitious-island-01ab11110.7.azurestaticapps.net",
+    "SAML_FRONTEND_URL": "https://ambitious-island-01ab11110.7.azurestaticapps.net",
+    "SAML_SP_ENTITY_ID": "https://ambitious-island-01ab11110.7.azurestaticapps.net/",
+    "SAML_IDP_ENTRY_POINT": "https://amfsdevl.tec.mx/nidp/saml2/sso",
+    "SAML_IDP_SLO_URL": "https://amfsdevl.tec.mx/nidp/saml2/slo",
+    "SAML_IDP_CERT": "-----BEGIN CERTIFICATE-----\\n...\\n-----END CERTIFICATE-----",
+    "SAML_SP_PUBLIC_CERT": "-----BEGIN CERTIFICATE-----\\n...\\n-----END CERTIFICATE-----",
+    "SAML_SP_PRIVATE_KEY": "-----BEGIN PRIVATE KEY-----\\n...\\n-----END PRIVATE KEY-----",
+    "SAML_SP_AUTHN_REQUESTS_SIGNED": "true",
+    "SAML_SP_WANT_ASSERTIONS_SIGNED": "true",
+    "SESSION_SECRET": "cambia-este-secreto-en-produccion",
+    "SESSION_COOKIE_NAME": "licencias_session",
+    "SESSION_TTL_SECONDS": "28800",
+    "CORS_ORIGINS": "https://ambitious-island-01ab11110.7.azurestaticapps.net,http://localhost:3000",
+    "StorageConnectionString": "DefaultEndpointsProtocol=https;AccountName=stgstddevaprovlicencias;AccountKey=...;EndpointSuffix=core.windows.net",
+    "AuthorizedUsersTable": "AuthorizedUsers",
+    "AuthorizedUsersFallback": "true",
+    "FaApiKey": "cambiar-en-produccion",
+    "FaBaseUrl": "https://fa-devl-aprovlicencias.azurewebsites.net"
+  }
+}

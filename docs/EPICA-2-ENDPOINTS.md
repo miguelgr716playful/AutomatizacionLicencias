@@ -1,10 +1,25 @@
 # Épica 2 — Endpoints front ↔ back
 
-Definición de endpoints entre el **portal (Next.js en SWA)** y **Azure Functions (BFF)**, que a su vez dispara **Azure Data Factory**.
+Definición de endpoints entre el **portal (Next.js en SWA)** y **Azure Functions (BFF)**, que a su vez dispara **Azure Data Factory** y/o **FA C#**.
 
-**Convención:** prefijo `/v1` en Azure Functions, JSON, autenticación **NAM** (ITESM). Base URL: `NEXT_PUBLIC_API_BASE_URL`.
+**Convención:** prefijo `/v1` en Azure Functions, JSON, autenticación **SAML AMFS** (DEVL). Base URL: `NEXT_PUBLIC_API_BASE_URL`.
 
-Ver [DECISIONES-ARQUITECTURA.md](./DECISIONES-ARQUITECTURA.md) para el contexto de cada decisión.
+Ver [DECISIONES-ARQUITECTURA.md](./DECISIONES-ARQUITECTURA.md) y [FRONT-BACK.md](./FRONT-BACK.md).
+
+---
+
+## Endpoints implementados (version4)
+
+| Método | Ruta SWA | Implementación | Notas |
+|--------|----------|----------------|-------|
+| SAML + sesión | `/v1/auth/*` | Node SWA | Login AMFS, cookie, allowlist |
+| `GET` | `/v1/health` | Node SWA | `mode: bff-proxy-to-fa-csharp` |
+| `GET/POST` | `/v1/adobe/*` | Proxy → FA C# | Cuotas, miembros, licencias |
+| `GET/PUT` | `/v1/configuracion/*` | Proxy → FA C# | UI configuración + KV Adobe |
+| CRUD | `/v1/usuarios` | Proxy → FA C# | Allowlist (admin) |
+| `POST` | `/v1/licencias/upload` | Proxy → FA C# | Multipart → Blob |
+| `POST` | `/v1/licencias/operaciones` | **Pendiente** | Trigger ADF (contrato abajo) |
+| `GET` | `/v1/dashboard`, `/v1/reportes` | Mock / pendiente | Épica 2 original |
 
 ---
 
@@ -45,12 +60,19 @@ flowchart LR
 
 ## 1. Autenticación y sesión
 
+Base API (SWA managed): `https://ambitious-island-01ab11110.7.azurestaticapps.net/api`
+
 | Método | Endpoint | Rol | Descripción |
 |--------|----------|-----|-------------|
-| `POST` | `/v1/auth/login` | Público | Login vía **NAM** (pendiente doc identidad) |
-| `GET` | `/v1/auth/me` | Autenticado | Usuario + rol (`admin` \| `ejecutor` \| `auditor`) |
-| `POST` | `/v1/auth/logout` | Autenticado | Cerrar sesión |
-| `POST` | `/v1/auth/refresh` | Autenticado | Renovar token (si aplica) |
+| `GET` | `/v1/auth/saml/login` | Público | Inicia SSO → redirect al IdP (NAM) |
+| `POST` | `/v1/auth/saml/acs` | Público | ACS: recibe `SAMLResponse`, crea cookie de sesión, redirect al portal |
+| `GET`/`POST` | `/v1/auth/saml/slo` | Público | Single Logout |
+| `GET` | `/v1/auth/saml/metadata` | Público | Metadata XML del SP |
+| `GET` | `/v1/auth/me` | Cookie | Usuario + rol (`admin` \| `ejecutor` \| `auditor`) |
+| `POST` | `/v1/auth/logout` | Cookie | Cierra sesión local |
+| `GET` | `/v1/health` | Público | Health + URLs SAML |
+
+**App settings requeridas en Function App:** `SAML_IDP_ENTRY_POINT` (`https://amfsdevl.tec.mx/nidp/saml2/sso`), `SAML_IDP_SLO_URL` (`https://amfsdevl.tec.mx/nidp/saml2/slo`), `SAML_IDP_CERT`, `SAML_SP_PUBLIC_CERT`, `SAML_SP_PRIVATE_KEY`, `SAML_SP_AUTHN_REQUESTS_SIGNED`, `SAML_FUNCTIONS_BASE_URL`, `SAML_FRONTEND_URL`, `SESSION_SECRET`.
 
 **Response `GET /auth/me` (ejemplo):**
 
@@ -106,7 +128,8 @@ flowchart LR
 
 **Caso de uso:** `AprovisionarLicenciasUseCase` · **Hook:** `useAprovisionar`
 
-> El portal parsea el CSV en el navegador (`lib/csv-parser.ts`) y envía **JSON en memoria**. No se usa Blob Storage ni `multipart/form-data`. Functions dispara ADF.
+> **Upload a Blob (implementado):** `POST /v1/licencias/upload` (multipart) vía proxy FA — ver [CSV-STORAGE.md](./CSV-STORAGE.md).  
+> **Operaciones ADF (pendiente):** el portal parsea el CSV (`lib/csv-parser.ts`) y enviará **JSON** a `POST /v1/licencias/operaciones`.
 
 | Método | Endpoint | Roles | Descripción |
 |--------|----------|-------|-------------|
@@ -411,6 +434,8 @@ Al implementar Azure Functions, crear repositorios HTTP en `infrastructure/repos
 
 ## Referencias
 
+- [Front ↔ Back](./FRONT-BACK.md)
+- [Proxy SWA → FA](./SWA-FA-PROXY.md)
 - [Decisiones de arquitectura](./DECISIONES-ARQUITECTURA.md)
 - [Arquitectura del proyecto](./ARQUITECTURA.md)
 - [Plan de despliegue Azure SWA](./DEPLOY-AZURE-SWA.md)

@@ -4,6 +4,13 @@ const BANNER_ID_HEADERS = ["banner_id", "bannerid", "clave_banner", "clave", "id
 const EMAIL_HEADERS = ["email", "email_inst"];
 const NOMBRES_HEADERS = ["nombres", "firstname", "nombre"];
 const APELLIDOS_HEADERS = ["apellidos", "lastname", "apellido"];
+const ASIGNATURA_HEADERS = [
+  "asignatura",
+  "subject",
+  "curso",
+  "materia",
+  "clave_asignatura",
+];
 
 function normalizeHeader(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, "_");
@@ -11,6 +18,16 @@ function normalizeHeader(value: string): string {
 
 function findColumnIndex(headers: string[], aliases: string[]): number {
   return headers.findIndex((h) => aliases.includes(normalizeHeader(h)));
+}
+
+function findColumnIndexExcluding(
+  headers: string[],
+  aliases: string[],
+  excludeIdx: number
+): number {
+  return headers.findIndex(
+    (h, i) => i !== excludeIdx && aliases.includes(normalizeHeader(h))
+  );
 }
 
 function parseCsvLine(line: string): string[] {
@@ -38,6 +55,11 @@ export function parseCsvText(text: string): RegistroBanner[] {
   const emailIdx = findColumnIndex(headers, EMAIL_HEADERS);
   const nombresIdx = findColumnIndex(headers, NOMBRES_HEADERS);
   const apellidosIdx = findColumnIndex(headers, APELLIDOS_HEADERS);
+  const asignaturaIdx = findColumnIndexExcluding(
+    headers,
+    [...ASIGNATURA_HEADERS, "clave"],
+    bannerIdx
+  );
 
   const registros: RegistroBanner[] = [];
 
@@ -52,6 +74,9 @@ export function parseCsvText(text: string): RegistroBanner[] {
       ...(nombresIdx >= 0 && cells[nombresIdx] ? { nombres: cells[nombresIdx] } : {}),
       ...(apellidosIdx >= 0 && cells[apellidosIdx]
         ? { apellidos: cells[apellidosIdx] }
+        : {}),
+      ...(asignaturaIdx >= 0 && cells[asignaturaIdx]
+        ? { asignatura: cells[asignaturaIdx] }
         : {}),
     });
   }

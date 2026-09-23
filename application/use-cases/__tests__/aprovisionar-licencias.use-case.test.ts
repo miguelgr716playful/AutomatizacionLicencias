@@ -34,7 +34,7 @@ describe("AprovisionarLicenciasUseCase", () => {
       software: "adobe",
       tipo: "aprov",
       registros,
-      archivoNombre: "alumnos.csv",
+      archivoNombre: "Claves Banner Adobe.csv",
     });
 
     expect(result.operacionId).toBe("OP-123");
@@ -43,7 +43,23 @@ describe("AprovisionarLicenciasUseCase", () => {
       software: "adobe",
       tipo: "aprov",
       registros,
-      archivoNombre: "alumnos.csv",
+      archivoNombre: "Claves Banner Adobe.csv",
     });
+  });
+
+  it("rechaza archivo que no coincide con el software", async () => {
+    const repo = { procesar: vi.fn() } as unknown as ILicenciaRepository;
+    const useCase = new AprovisionarLicenciasUseCase(repo);
+
+    await expect(
+      useCase.ejecutar({
+        software: "minitab",
+        tipo: "aprov",
+        registros: [{ bannerId: "T001" }],
+        archivoNombre: "Claves Banner Adobe.csv",
+      })
+    ).rejects.toThrow("no corresponde a Minitab");
+
+    expect(repo.procesar).not.toHaveBeenCalled();
   });
 });

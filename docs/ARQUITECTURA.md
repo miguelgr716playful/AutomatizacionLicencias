@@ -57,16 +57,18 @@ flowchart TB
     Repos -.->|implementa| Ports
 ```
 
-### 3.2 Integración Azure (decisión de proyecto)
+### 3.2 Integración Azure (version4)
 
 ```mermaid
 flowchart LR
     subgraph portal["Portal — Azure SWA"]
         Next["Next.js static export"]
+        BFF["API Node BFF<br/>SAML + proxy"]
     end
 
-    subgraph bff["Capa intermedia"]
-        Fn["Azure Functions"]
+    subgraph back["Backend C#"]
+        FA["FA-DEVL-AprovLicencias"]
+        KV["Key Vault"]
     end
 
     subgraph etl["Procesamiento"]
@@ -76,23 +78,28 @@ flowchart LR
     end
 
     subgraph proveedores["Proveedores"]
-        Adobe["Adobe API"]
+        Adobe["Adobe UMAPI"]
         Minitab["Minitab API"]
     end
 
     subgraph identity["Identidad"]
-        NAM["NAM / ITESM"]
+        AMFS["AMFS / SAML"]
     end
 
-    Next -->|"JSON en memoria"| Fn
-    Next --> NAM
-    Fn -->|"Trigger pipeline"| ADF
+    Next --> BFF
+    Next --> AMFS
+    BFF -->|"x-fa-api-key"| FA
+    FA --> KV
+    FA --> Adobe
+    BFF -->|"ACS allowlist"| Storage["Table + Blob"]
+    FA --> Storage
+    FA -.->|"futuro: operaciones"| ADF
     ADF --> SHIR --> Banner
     ADF --> Adobe
     ADF --> Minitab
 ```
 
-> **Nota:** El CSV del Ejecutor **no se guarda en Blob Storage**. El portal parsea el archivo y envía `registros[]` como JSON a Azure Functions, que dispara ADF. Ver [DECISIONES-ARQUITECTURA.md](./DECISIONES-ARQUITECTURA.md).
+> **Implementado:** Adobe, configuración, usuarios y upload CSV vía **proxy BFF → FA C#**. Credenciales Adobe en **Key Vault**. Upload CSV persiste en Blob (`actual/` + `historico/`) para consumo ADF. Ver [FRONT-BACK.md](./FRONT-BACK.md) y [DECISIONES-ARQUITECTURA.md](./DECISIONES-ARQUITECTURA.md).
 
 ---
 
@@ -333,25 +340,25 @@ erDiagram
 ### Portal (front — SWA)
 
 ```env
-# Azure Functions (BFF)
-NEXT_PUBLIC_API_BASE_URL=https://func-licencias.azurewebsites.net/api
+NEXT_PUBLIC_API_BASE_URL=https://<swa>.azurestaticapps.net/api
+NEXT_PUBLIC_SAML_LOGIN=true
 ```
 
-### Backend (Azure Functions / ADF — no en el repositorio)
+### SWA API Node (BFF — App Settings)
 
 ```env
-# Key Vault references — validar con Juan Manuel
-ADOBE_CLIENT_ID=
-ADOBE_CLIENT_SECRET=
-ADOBE_ORG_ID=
-MINITAB_API_KEY=
-MINITAB_BASE_URL=
-
-# ADF
-ADF_PIPELINE_TRIGGER_URL=
+FaApiKey=...
+FaBaseUrl=https://fa-devl-aprovlicencias.azurewebsites.net
+SESSION_SECRET=...
+StorageConnectionString=...   # ACS → AuthorizedUsers
+# SAML_* (ver docs/SAML-AMFS.md)
 ```
 
-> Las credenciales de proveedores **nunca** van en el front. Solo `NEXT_PUBLIC_*` en SWA.
+### FA C# + ADF (no en el repositorio front)
+
+Secretos Adobe en **Key Vault** (`AdobeOrgId`, `AdobeClientId`, `AdobeClientSecret`). La FA los lee con Managed Identity. ADF también lee el mismo vault.
+
+> Las credenciales de proveedores **nunca** van en el front ni en App Settings del SWA. Solo `NEXT_PUBLIC_*` en build del portal.
 
 ---
 
@@ -368,10 +375,10 @@ ADF_PIPELINE_TRIGGER_URL=
 
 ## 11. Roadmap técnico
 
-1. **Fase 1 (actual):** UI funcional, Clean Architecture con repositorios mock, parseo CSV en cliente, deploy SWA static.
-2. **Fase 2:** Repositorios HTTP → Azure Functions → ADF; sustituir mocks.
-3. **Fase 3:** Autenticación **NAM** y autorización por rol en portal + Functions.
-4. **Fase 4:** Jobs programados Banner (ADF + SHIR) y reportes desde ETL.
+1. **Fase 1 (hecho):** UI, deploy SWA static, SAML AMFS, allowlist.
+2. **Fase 2 (parcial):** BFF proxy → FA C# (Adobe, config, usuarios, upload CSV); mocks restantes en dashboard/reportes.
+3. **Fase 3:** `POST /licencias/operaciones` → ADF; reportes desde ETL.
+4. **Fase 4:** Jobs programados Banner (ADF + SHIR).
 5. **Fase 5:** Tests E2E (Playwright) y monitoreo de operaciones masivas.
 
 ---
@@ -386,18 +393,20 @@ ADF_PIPELINE_TRIGGER_URL=
 | Client Components en secciones | Interactividad inmediata sin complejidad de hidratación en gráficas |
 | Clean Architecture | Dominio estable; infraestructura intercambiable sin tocar UI |
 | Repositorios mock | Desacopla UI de backends aún no implementados |
-| SWA static + Functions | Portal sin backend embebido; API en Azure Functions |
-| CSV → JSON en memoria | Sin Blob Storage en upload; menor latencia y costo |
-| `HttpLicenciaRepository` | Listo para conectar cuando exista `NEXT_PUBLIC_API_BASE_URL` |
+| SWA static + BFF Node + FA C# | Portal sin backend embebido; negocio en FA desplegada aparte |
+| CSV → Blob vía FA | Ruta fija `actual/` para ADF + histórico por auditoría |
+| Proxy `fa-proxy.js` | Browser nunca expone `FaApiKey` ni secretos Adobe |
 
 ---
 
 ## 13. Documentación relacionada
 
+- [Front ↔ Back (diagramas)](./FRONT-BACK.md)
+- [Proxy SWA → FA](./SWA-FA-PROXY.md)
 - [Decisiones de arquitectura Azure](./DECISIONES-ARQUITECTURA.md)
 - [Endpoints Épica 2](./EPICA-2-ENDPOINTS.md)
 - [Deploy Azure SWA](./DEPLOY-AZURE-SWA.md)
 
 ---
 
-*Última actualización: junio 2026*
+*Última actualización: septiembre 2026*

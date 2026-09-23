@@ -1,3 +1,4 @@
+import { GuardarMapeoProveedorUseCase } from "@/application/use-cases/guardar-mapeo-proveedor.use-case";
 import { ActualizarPeriodicidadUseCase } from "@/application/use-cases/actualizar-periodicidad.use-case";
 import { AprovisionarLicenciasUseCase } from "@/application/use-cases/aprovisionar-licencias.use-case";
 import { ObtenerConfiguracionUseCase } from "@/application/use-cases/obtener-configuracion.use-case";
@@ -19,4 +20,5 @@ export const container = {
   obtenerReportes: new ObtenerReportesUseCase(reporteRepo),
   obtenerConfiguracion: new ObtenerConfiguracionUseCase(configRepo),
   actualizarPeriodicidad: new ActualizarPeriodicidadUseCase(configRepo),
+  guardarMapeoProveedor: new GuardarMapeoProveedorUseCase(configRepo),
 };

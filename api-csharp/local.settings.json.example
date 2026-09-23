@@ -1,0 +1,22 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "SESSION_SECRET": "change-me-licencias-dev-secret",
+    "SESSION_COOKIE_NAME": "licencias_session",
+    "SESSION_TTL_SECONDS": "28800",
+    "SAML_FUNCTIONS_BASE_URL": "https://fa-devl-aprovlicencias.azurewebsites.net",
+    "SAML_FRONTEND_URL": "https://ambitious-island-01ab11110.7.azurestaticapps.net",
+    "CORS_ORIGINS": "https://ambitious-island-01ab11110.7.azurestaticapps.net,http://localhost:3000",
+    "StorageConnectionString": "",
+    "AuthorizedUsersTable": "AuthorizedUsers",
+    "AuthorizedUsersFallback": "true",
+    "CsvUploadContainer": "csv-uploads",
+    "AdobeOrgId": "",
+    "AdobeClientId": "",
+    "AdobeClientSecret": "",
+    "AdobeScopes": "openid,AdobeID,user_management_sdk",
+    "KeyVaultUrl": "https://kv-devl-aprovlicencias.vault.azure.net"
+  }
+}

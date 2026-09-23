@@ -1,0 +1,22 @@
+{
+  "name": "licencias-swa-api",
+  "version": "0.1.1",
+  "private": true,
+  "main": "src/functions/*.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "func start",
+    "build": "echo \"No build step for JS Functions\"",
+    "seed:users": "node scripts/seed-authorized-users.js"
+  },
+  "dependencies": {
+    "@azure/data-tables": "^13.3.2",
+    "@azure/functions": "^4.6.0",
+    "@azure/identity": "^4.13.2",
+    "@azure/keyvault-secrets": "^4.11.2",
+    "@azure/storage-blob": "^12.28.0",
+    "@node-saml/node-saml": "^5.1.0"
+  }
+}

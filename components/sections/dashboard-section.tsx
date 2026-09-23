@@ -1,15 +1,14 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import {
   Package,
   TrendingUp,
   TrendingDown,
-  Users,
-  RefreshCw,
 } from "lucide-react";
 import {
-  AreaChart,
-  Area,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -17,11 +16,141 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { useDashboard } from "@/hooks/use-dashboard";
+import { ReportesSection } from "@/components/sections/reportes-section";
+import type { StatCard } from "@/domain/entities/dashboard";
 
-const STAT_ICONS = [Package, TrendingUp, TrendingDown, Users];
+type FiltroTipoUsuario = "todos" | "alumnos" | "colaboradores";
+
+const FILTRO_TIPO_USUARIO: { value: FiltroTipoUsuario; label: string }[] = [
+  { value: "todos", label: "Todos" },
+  { value: "alumnos", label: "Alumnos" },
+  { value: "colaboradores", label: "Colaboradores" },
+];
+
+const STAT_ICONS = [TrendingUp, TrendingUp, TrendingDown, TrendingDown];
+const ADOBE_COLOR = "#00B364";
+const MINITAB_COLOR = "#0B4D3C";
+
+type TendenciaTooltipProps = {
+  active?: boolean;
+  payload?: Array<{
+    dataKey?: string;
+    payload?: Record<string, number | string>;
+  }>;
+  label?: string;
+  filtro: FiltroTipoUsuario;
+};
+
+function TendenciaTooltip({ active, payload, label, filtro }: TendenciaTooltipProps) {
+  if (!active || !payload?.length) return null;
+
+  const hovered = payload[0];
+  const dataKey = String(hovered.dataKey ?? "");
+  const data = hovered.payload ?? {};
+  const mes = String(data.mes ?? label ?? "");
+  const isAdobe = dataKey.startsWith("adobe");
+
+  const alumnos = isAdobe ? Number(data.adobeAlumnos) : Number(data.minitabAlumnos);
+  const colaboradores = isAdobe
+    ? Number(data.adobeColaboradores)
+    : Number(data.minitabColaboradores);
+  const total = isAdobe ? Number(data.adobe) : Number(data.minitab);
+  const color = isAdobe ? ADOBE_COLOR : MINITAB_COLOR;
+  const software = isAdobe ? "Adobe" : "Minitab";
+
+  const filas =
+    filtro === "alumnos"
+      ? [{ label: "Alumnos", value: alumnos, color }]
+      : filtro === "colaboradores"
+        ? [{ label: "Colaboradores", value: colaboradores, color }]
+        : [{ label: "Total", value: total, color }];
+
+  return (
+    <div className="rounded-[10px] border border-border bg-white px-3 py-2 text-xs shadow-md">
+      <p className="mb-1.5 font-medium text-foreground">
+        {mes} · {software}
+      </p>
+      <div className="space-y-1.5">
+        {filas.map((fila) => (
+          <div key={fila.label} className="flex items-center gap-2 text-muted-foreground">
+            <span>{fila.label}</span>
+            <span
+              className="w-2.5 h-2.5 rounded-sm shrink-0 border border-black/10"
+              style={{ backgroundColor: fila.color }}
+            />
+            <span className="font-bold text-foreground">{fila.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function statDisplayValue(card: StatCard, filtro: FiltroTipoUsuario): string {
+  if (filtro === "alumnos" && card.alumnos != null) {
+    return String(card.alumnos);
+  }
+  if (filtro === "colaboradores" && card.colaboradores != null) {
+    return String(card.colaboradores);
+  }
+  return card.value;
+}
+
+function FiltroTipoUsuarioControl({
+  value,
+  onChange,
+}: {
+  value: FiltroTipoUsuario;
+  onChange: (value: FiltroTipoUsuario) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-xs font-medium text-muted-foreground">
+        Tipo de usuario:
+      </span>
+      <div className="inline-flex rounded-lg border border-border bg-white p-0.5">
+        {FILTRO_TIPO_USUARIO.map((opcion) => (
+          <button
+            key={opcion.value}
+            type="button"
+            onClick={() => onChange(opcion.value)}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              value === opcion.value
+                ? "bg-emerald-500 text-white shadow-sm"
+                : "text-muted-foreground hover:text-foreground hover:bg-gray-50"
+            }`}
+          >
+            {opcion.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function DashboardSection() {
-  const { data, cargando, recargar } = useDashboard();
+  const { data, cargando } = useDashboard();
+  const [filtroTipoUsuario, setFiltroTipoUsuario] =
+    useState<FiltroTipoUsuario>("todos");
+
+  const leyendaChart = useMemo(() => {
+    if (filtroTipoUsuario === "alumnos") {
+      return [
+        { label: "Adobe · Alumnos", color: ADOBE_COLOR },
+        { label: "Minitab · Alumnos", color: MINITAB_COLOR },
+      ];
+    }
+    if (filtroTipoUsuario === "colaboradores") {
+      return [
+        { label: "Adobe · Colaboradores", color: ADOBE_COLOR },
+        { label: "Minitab · Colaboradores", color: MINITAB_COLOR },
+      ];
+    }
+    return [
+      { label: "Adobe", color: ADOBE_COLOR },
+      { label: "Minitab", color: MINITAB_COLOR },
+    ];
+  }, [filtroTipoUsuario]);
 
   if (cargando || !data) {
     return (
@@ -33,40 +162,17 @@ export function DashboardSection() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-page-title">Panel General</h1>
-          <p className="text-page-subtitle">
-            Resumen en tiempo real de licencias activas
-          </p>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          {["API Adobe: Conectado", "API Minitab: Conectado"].map((label) => (
-            <span
-              key={label}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border"
-              style={{
-                borderColor: "#a7f3d0",
-                backgroundColor: "#f0fdf4",
-                color: "#00B364",
-              }}
-            >
-              <span
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ backgroundColor: "#00B364" }}
-              />
-              {label}
-            </span>
-          ))}
-          <button
-            type="button"
-            onClick={() => recargar()}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-muted-foreground hover:bg-gray-50 transition-colors"
-          >
-            <RefreshCw className="w-3.5 h-3.5" /> Actualizar
-          </button>
-        </div>
+      <div>
+        <h1 className="text-page-title">Panel General</h1>
+        <p className="text-page-subtitle">
+          Resumen de licencias y reporte de asignaciones
+        </p>
       </div>
+
+      <FiltroTipoUsuarioControl
+        value={filtroTipoUsuario}
+        onChange={setFiltroTipoUsuario}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {data.stats.map((c, i) => {
@@ -86,7 +192,9 @@ export function DashboardSection() {
                 <p className="text-xs text-muted-foreground leading-snug">
                   {c.label}
                 </p>
-                <p className="text-stat-value text-foreground">{c.value}</p>
+                <p className="text-stat-value text-foreground">
+                  {statDisplayValue(c, filtroTipoUsuario)}
+                </p>
                 {c.sub && (
                   <p className="text-xs text-muted-foreground mt-0.5">
                     {c.sub}
@@ -106,47 +214,38 @@ export function DashboardSection() {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-stretch min-w-0">
         <div className="lg:col-span-3 bg-white rounded-2xl border border-border p-5 shadow-sm flex flex-col">
           <div className="flex items-start justify-between gap-2 mb-4">
             <div>
               <h2 className="text-section-title">Tendencia de Licencias</h2>
-              <p className="text-section-subtitle">Últimos 6 meses</p>
+              <p className="text-section-subtitle">Últimos 8 meses</p>
             </div>
-            <div className="flex items-center gap-3 shrink-0 pt-0.5">
-              <span className="flex items-center gap-1.5 text-xs font-medium text-foreground">
+            <div className="flex flex-wrap items-center justify-end gap-x-3 gap-y-1 shrink-0 pt-0.5 max-w-[220px] sm:max-w-none">
+              {leyendaChart.map((item) => (
                 <span
-                  className="w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: "#00B364" }}
-                />
-                Adobe
-              </span>
-              <span className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-                <span
-                  className="w-2.5 h-2.5 rounded-full"
-                  style={{ backgroundColor: "#0B4D3C" }}
-                />
-                Minitab
-              </span>
+                  key={item.label}
+                  className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground"
+                >
+                  <span
+                    className="w-2.5 h-2.5 rounded-sm"
+                    style={{ backgroundColor: item.color }}
+                  />
+                  {item.label}
+                </span>
+              ))}
             </div>
           </div>
           <div className="flex-1 min-w-0 h-[220px] sm:h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
+              <BarChart
+                key={filtroTipoUsuario}
                 data={data.tendencia}
                 margin={{ top: 4, right: 8, left: -20, bottom: 0 }}
+                barGap={4}
+                barCategoryGap="20%"
               >
-                <defs>
-                  <linearGradient id="gAdobe" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#00B364" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#00B364" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="gMinitab" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0B4D3C" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#0B4D3C" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
                 <XAxis
                   dataKey="mes"
                   tick={{ fontSize: 12, fill: "#94a3b8" }}
@@ -159,47 +258,77 @@ export function DashboardSection() {
                   tickLine={false}
                 />
                 <Tooltip
-                  contentStyle={{
-                    borderRadius: 10,
-                    border: "1px solid #e5e7eb",
-                    fontSize: 12,
-                    boxShadow: "0 4px 12px rgba(0,0,0,.08)",
-                  }}
-                  cursor={{ stroke: "#e5e7eb", strokeWidth: 1 }}
+                  shared={false}
+                  cursor={false}
+                  content={<TendenciaTooltip filtro={filtroTipoUsuario} />}
                 />
-                <Area
-                  type="monotone"
-                  dataKey="adobe"
-                  name="adobe"
-                  stroke="#00B364"
-                  strokeWidth={2.5}
-                  fill="url(#gAdobe)"
-                  dot={{ r: 3, fill: "#00B364", strokeWidth: 0 }}
-                  activeDot={{ r: 5, fill: "#00B364" }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="minitab"
-                  name="minitab"
-                  stroke="#0B4D3C"
-                  strokeWidth={2.5}
-                  fill="url(#gMinitab)"
-                  dot={{ r: 3, fill: "#0B4D3C", strokeWidth: 0 }}
-                  activeDot={{ r: 5, fill: "#0B4D3C" }}
-                />
-              </AreaChart>
+                {filtroTipoUsuario === "todos" && (
+                  <Bar
+                    dataKey="adobe"
+                    name="Adobe"
+                    fill={ADOBE_COLOR}
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={28}
+                  />
+                )}
+                {filtroTipoUsuario === "todos" && (
+                  <Bar
+                    dataKey="minitab"
+                    name="Minitab"
+                    fill={MINITAB_COLOR}
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={28}
+                  />
+                )}
+                {filtroTipoUsuario === "alumnos" && (
+                  <Bar
+                    dataKey="adobeAlumnos"
+                    name="Adobe · Alumnos"
+                    fill={ADOBE_COLOR}
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={28}
+                  />
+                )}
+                {filtroTipoUsuario === "alumnos" && (
+                  <Bar
+                    dataKey="minitabAlumnos"
+                    name="Minitab · Alumnos"
+                    fill={MINITAB_COLOR}
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={28}
+                  />
+                )}
+                {filtroTipoUsuario === "colaboradores" && (
+                  <Bar
+                    dataKey="adobeColaboradores"
+                    name="Adobe · Colaboradores"
+                    fill={ADOBE_COLOR}
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={28}
+                  />
+                )}
+                {filtroTipoUsuario === "colaboradores" && (
+                  <Bar
+                    dataKey="minitabColaboradores"
+                    name="Minitab · Colaboradores"
+                    fill={MINITAB_COLOR}
+                    radius={[4, 4, 0, 0]}
+                    maxBarSize={28}
+                  />
+                )}
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-border shadow-sm flex flex-col overflow-hidden">
-          <div className="px-5 py-4 border-b border-border">
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-border shadow-sm flex flex-col overflow-hidden min-w-0">
+          <div className="px-3 py-3 border-b border-border">
             <h2 className="text-section-title">Actividad Reciente</h2>
             <p className="text-section-subtitle">
               Últimas operaciones procesadas
             </p>
           </div>
-          <div className="flex-1 overflow-auto min-w-0">
+          <div className="flex-1 min-w-0 overflow-hidden">
             <div className="md:hidden divide-y divide-border">
               {data.actividadReciente.map((r) => (
                 <div
@@ -238,14 +367,20 @@ export function DashboardSection() {
               ))}
             </div>
 
-            <div className="hidden md:block overflow-x-auto">
-            <table className="w-full">
+            <div className="hidden md:block">
+            <table className="w-full table-fixed text-[11px]">
+              <colgroup>
+                <col className="w-[27%]" />
+                <col className="w-[17%]" />
+                <col className="w-[36%]" />
+                <col className="w-[20%]" />
+              </colgroup>
               <thead>
                 <tr className="border-b border-border">
                   {["Fecha", "Software", "Tipo", "Estado"].map((h) => (
                     <th
                       key={h}
-                      className="px-5 py-2.5 text-table-header text-left"
+                      className="px-2 py-2 text-[10px] font-bold uppercase tracking-wide text-muted-foreground text-left"
                     >
                       {h}
                     </th>
@@ -258,15 +393,15 @@ export function DashboardSection() {
                     key={`${r.fecha}-${r.software}-${r.tipo}`}
                     className="border-b border-border last:border-0 hover:bg-gray-50/70 transition-colors"
                   >
-                    <td className="px-5 py-3 text-xs text-foreground whitespace-nowrap">
+                    <td className="px-2 py-2 text-[11px] text-foreground truncate">
                       {r.fecha}
                     </td>
-                    <td className="px-5 py-3 text-xs font-medium text-foreground">
+                    <td className="px-2 py-2 text-[11px] font-medium text-foreground truncate">
                       {r.software}
                     </td>
-                    <td className="px-5 py-3">
+                    <td className="px-2 py-2">
                       <span
-                        className={`inline-flex items-center px-2 py-0.5 rounded-md text-badge font-bold tracking-wide border ${
+                        className={`inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-semibold leading-tight border whitespace-nowrap ${
                           r.tipo === "APROV"
                             ? "bg-emerald-50 text-emerald-600 border-emerald-200"
                             : "bg-orange-50 text-orange-500 border-orange-200"
@@ -275,7 +410,7 @@ export function DashboardSection() {
                         {r.tipo === "APROV" ? "Aprovisionar" : "Desaprovisionar"}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-xs font-medium">
+                    <td className="px-2 py-2 text-[11px] font-medium truncate">
                       <span
                         className={
                           r.estado === "Completado"
@@ -294,6 +429,8 @@ export function DashboardSection() {
           </div>
         </div>
       </div>
+
+      <ReportesSection embedded />
     </div>
   );
 }

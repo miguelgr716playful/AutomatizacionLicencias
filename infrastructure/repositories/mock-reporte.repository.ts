@@ -5,6 +5,22 @@ import type {
 } from "@/domain/ports/reporte-repository.port";
 import { reporteData } from "@/infrastructure/mocks/data";
 
+function coincideAccion(filtro: string, accion: "Alta" | "Baja"): boolean {
+  if (
+    filtro === "Aprovisionar/Desaprovisionar" ||
+    filtro === "Alta y Baja"
+  ) {
+    return true;
+  }
+  if (filtro === "Aprovisionar" || filtro === "Alta") {
+    return accion === "Alta";
+  }
+  if (filtro === "Desaprovisionar" || filtro === "Baja") {
+    return accion === "Baja";
+  }
+  return true;
+}
+
 export class MockReporteRepository implements IReporteRepository {
   async listar(
     filtros: FiltrosReporte,
@@ -15,7 +31,7 @@ export class MockReporteRepository implements IReporteRepository {
       (r) =>
         (filtros.software === "Todo software" ||
           r.software === filtros.software) &&
-        (filtros.accion === "Alta y Baja" || r.accion === filtros.accion) &&
+        coincideAccion(filtros.accion, r.accion) &&
         (filtros.origen === "ETL + Manual" || r.origen === filtros.origen) &&
         (filtros.busqueda === "" ||
           r.nombre.toLowerCase().includes(filtros.busqueda.toLowerCase()) ||

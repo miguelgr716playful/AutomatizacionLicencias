@@ -3,28 +3,56 @@
 import { useCallback, useEffect, useState } from "react";
 import { PAGE_SIZE, type ReportesResponse } from "@/application/dto/reportes.dto";
 import { container } from "@/infrastructure/di/container";
+import { descargarReportesCsv } from "@/lib/export-reportes-csv";
 
 export function useReportes() {
   const [filterSoftware, setFilterSoftware] = useState("Todo software");
-  const [filterAccion, setFilterAccion] = useState("Alta y Baja");
-  const [filterOrigen, setFilterOrigen] = useState("ETL + Manual");
+  const [filterAccion, setFilterAccion] = useState("Aprovisionar/Desaprovisionar");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [data, setData] = useState<ReportesResponse | null>(null);
   const [cargando, setCargando] = useState(true);
+  const [exportando, setExportando] = useState(false);
+
+  const filtrosActuales = useCallback(
+    () => ({
+      software: filterSoftware,
+      accion: filterAccion,
+      origen: "ETL + Manual",
+      busqueda: search,
+    }),
+    [filterSoftware, filterAccion, search]
+  );
 
   const cargar = useCallback(async () => {
     setCargando(true);
     const resultado = await container.obtenerReportes.ejecutar({
-      software: filterSoftware,
-      accion: filterAccion,
-      origen: filterOrigen,
-      busqueda: search,
+      ...filtrosActuales(),
       page,
     });
     setData(resultado);
     setCargando(false);
-  }, [filterSoftware, filterAccion, filterOrigen, search, page]);
+  }, [filtrosActuales, page]);
+
+  const exportarCsv = useCallback(async () => {
+    if (!data?.total) return;
+
+    setExportando(true);
+    try {
+      const resultado = await container.obtenerReportes.ejecutar({
+        ...filtrosActuales(),
+        page: 1,
+        pageSize: data.total,
+      });
+      const fecha = new Date().toISOString().slice(0, 10);
+      descargarReportesCsv(
+        resultado.items,
+        `reporte-asignaciones-${fecha}.csv`
+      );
+    } finally {
+      setExportando(false);
+    }
+  }, [data?.total, filtrosActuales]);
 
   useEffect(() => {
     cargar();
@@ -45,14 +73,14 @@ export function useReportes() {
     setFilterSoftware: handleFilterChange(setFilterSoftware),
     filterAccion,
     setFilterAccion: handleFilterChange(setFilterAccion),
-    filterOrigen,
-    setFilterOrigen: handleFilterChange(setFilterOrigen),
     search,
     setSearch: setSearchAndReset,
     page,
     setPage,
     data,
     cargando,
+    exportando,
+    exportarCsv,
     pageSize: PAGE_SIZE,
   };
 }

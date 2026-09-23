@@ -8,7 +8,13 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "saml:cert": "node scripts/generate-sp-cert.mjs",
+    "saml:idp-cert": "node scripts/fetch-idp-cert.mjs",
+    "saml:metadata": "node scripts/generate-sp-metadata.mjs",
+    "saml:signing": "node scripts/apply-sp-signing.mjs",
+    "api:install": "npm --prefix api ci",
+    "api:start": "npm --prefix api exec -- func start"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "1.2.3",
@@ -69,6 +75,7 @@
     "eslint-config-next": "15.3.3",
     "jsdom": "^26.1.0",
     "postcss": "8.5.3",
+    "selfsigned": "^5.5.0",
     "tailwindcss": "4.1.12",
     "typescript": "5.8.3",
     "vitest": "^3.1.4"

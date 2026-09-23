@@ -8,10 +8,11 @@ Registro de decisiones tomadas con el equipo de infraestructura y pendientes de 
 
 | Decisión | Detalle |
 |----------|---------|
-| **No usar Blob Storage** para el upload del CSV | El objetivo es que el ETL procese la información, no persistir el archivo |
-| **Flujo acordado** | Portal parsea CSV → JSON en memoria → POST a Azure Functions → trigger ADF |
-| **Implementación front** | `lib/csv-parser.ts` + `useAprovisionar` envían `registros[]` |
-| **Implementación back** | Azure Functions recibe JSON y dispara pipeline ADF |
+| **Blob Storage para ADF** | Upload a `csv-uploads/actual/` + copia en `historico/` (ruta fija para ETL) |
+| **Flujo implementado (upload)** | Portal → `POST /api/v1/licencias/upload` → BFF proxy → FA C# → Blob |
+| **Flujo pendiente (operaciones)** | Portal parsea CSV → JSON → `POST /licencias/operaciones` → trigger ADF |
+| **Implementación front** | `lib/upload-csv.ts` + `use-aprovisionar.ts` |
+| **Implementación back** | FA C# (`LicenciasUploadFunction`); operaciones ADF aún sin endpoint |
 
 ```mermaid
 sequenceDiagram
@@ -68,9 +69,10 @@ ADF usa el SHIR para conectar con Banner 8.7 en red institucional.
 
 | Estado | Detalle |
 |--------|---------|
-| **Pendiente validar** | Confirmar si ya existen credenciales |
-| **Contacto** | Juan Manuel |
-| **Almacenamiento recomendado** | Azure Key Vault (acceso desde Functions/ADF, nunca en el front) |
+| **Implementado (Adobe)** | Key Vault `KV-DEVL-AprovLicencias`; FA C# lee/escribe; portal vía proxy BFF |
+| **Portal / SWA** | Sin `AdobeOrgId` / `AdobeClientId` / `AdobeClientSecret` en App Settings |
+| **ADF** | Managed Identity → mismo Key Vault (solo lectura) |
+| **Minitab** | Pendiente validar credenciales (Juan Manuel) |
 
 ---
 
@@ -100,24 +102,28 @@ Suficiente para SWA, Functions, ver recursos y colaborar en deploy.
 
 | Tema | Detalle |
 |------|---------|
-| **Upload CSV** | Sin Blob |
-| **Historial de reportes** | Origen por confirmar (posible salida del ETL/ADF, no necesariamente Blob) |
+| **Upload CSV** | Blob `csv-uploads` (vigente + histórico) vía FA C# |
+| **Historial de reportes** | Origen por confirmar (posible salida del ETL/ADF) |
 | **UI** | Copy actualizado a “Historial sincronizado desde ETL” |
 
 ---
 
 ## 9. Pendientes (checklist)
 
+- [x] Adobe en Key Vault + FA C# + proxy SWA (version4)
 - [ ] Oliver — validar Self-hosted Integration Runtime operativo
-- [ ] Juan Manuel — credenciales Adobe/Minitab + Key Vault
-- [ ] Identidad ITESM — registro app NAM + documentación de integración
-- [ ] Alfonso — contrato exacto del trigger ADF (payload, respuesta, `operacionId`)
+- [ ] Juan Manuel — credenciales Minitab + validar secret Adobe en PROD
+- [ ] Identidad ITESM — registro app NAM PROD + documentación
+- [ ] Alfonso — contrato exacto del trigger ADF (`POST /licencias/operaciones`)
 - [ ] Equipo ADF — confirmar origen de datos para módulo de reportes
 
 ---
 
 ## Referencias
 
+- [Front ↔ Back](./FRONT-BACK.md)
+- [Proxy SWA → FA](./SWA-FA-PROXY.md)
+- [Key Vault Adobe](./CONFIG-KEYVAULT.md)
 - [Arquitectura](./ARQUITECTURA.md)
 - [Endpoints Épica 2](./EPICA-2-ENDPOINTS.md)
 - [Deploy Azure SWA](./DEPLOY-AZURE-SWA.md)

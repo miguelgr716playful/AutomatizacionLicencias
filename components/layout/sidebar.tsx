@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { LogOut } from "lucide-react";
 import {
   NAV_ITEMS,
   ROLE_LABELS,
   ROLE_INITIALS,
   ROLE_SECTIONS,
+  HIDDEN_ROLES,
   type Role,
 } from "@/lib/constants";
 import { useRole } from "@/components/layout/role-provider";
@@ -21,18 +22,35 @@ interface SidebarProps {
 
 export function Sidebar({ onNavigate, className }: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
-  const { role, setRole } = useRole();
+  const { role, setRole, user, samlActivo, logout } = useRole();
 
   const handleLogout = () => {
     onNavigate?.();
-    router.push("/login");
+    void logout();
   };
 
   const handleRoleChange = (nextRole: Role) => {
     setRole(nextRole);
     onNavigate?.();
   };
+
+  const displayName =
+    (user?.nombre && user.nombre !== "Usuario" && user.nombre) ||
+    [user?.givenName, user?.sn].filter(Boolean).join(" ") ||
+    (user?.email?.includes("@") ? user.email : "") ||
+    ROLE_LABELS[role];
+  const displayEmail =
+    (user?.email?.includes("@") && user.email) ||
+    user?.email ||
+    "uni.edu.mx";
+  const initialsSource = displayName;
+  const initials = initialsSource
+    ? initialsSource
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((p) => p[0]?.toUpperCase() ?? "")
+        .join("") || ROLE_INITIALS[role]
+    : ROLE_INITIALS[role];
 
   return (
     <aside
@@ -53,49 +71,72 @@ export function Sidebar({ onNavigate, className }: SidebarProps) {
         />
       </div>
 
-      <div className="px-3 pt-4 pb-2">
-        <p className="text-sidebar-label text-white/40 px-2 mb-2">
-          Rol Activo
-        </p>
-        <div className="space-y-0.5">
-          {(["admin", "ejecutor", "auditor"] as Role[]).map((r) => (
-            <button
-              key={r}
-              type="button"
-              onClick={() => handleRoleChange(r)}
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 min-h-11 rounded-lg text-sm text-left transition-colors"
-              style={role === r ? { backgroundColor: "#00B364" } : {}}
-              onMouseEnter={(e) => {
-                if (role !== r)
-                  (e.currentTarget as HTMLElement).style.backgroundColor =
-                    "#167156";
-              }}
-              onMouseLeave={(e) => {
-                if (role !== r)
-                  (e.currentTarget as HTMLElement).style.backgroundColor = "";
-              }}
-            >
-              <span
-                className={`w-2 h-2 rounded-full shrink-0 ${role === r ? "bg-white" : "bg-white/30"}`}
-              />
-              <span
-                className={
-                  role === r ? "text-white font-medium" : "text-white/60"
-                }
-              >
-                {ROLE_LABELS[r]}
-              </span>
-            </button>
-          ))}
+      {!samlActivo && (
+        <div className="px-3 pt-4 pb-2">
+          <p className="text-sidebar-label text-white/40 px-2 mb-2">
+            Rol Activo
+          </p>
+          <div className="space-y-0.5">
+            {(["admin", "ejecutor", "auditor"] as Role[])
+              .filter((r) => !HIDDEN_ROLES.includes(r))
+              .map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => handleRoleChange(r)}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 min-h-11 rounded-lg text-sm text-left transition-colors"
+                  style={role === r ? { backgroundColor: "#00B364" } : {}}
+                  onMouseEnter={(e) => {
+                    if (role !== r)
+                      (e.currentTarget as HTMLElement).style.backgroundColor =
+                        "#167156";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (role !== r)
+                      (e.currentTarget as HTMLElement).style.backgroundColor =
+                        "";
+                  }}
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full shrink-0 ${role === r ? "bg-white" : "bg-white/30"}`}
+                  />
+                  <span
+                    className={
+                      role === r
+                        ? "text-white font-medium"
+                        : "text-white/60"
+                    }
+                  >
+                    {ROLE_LABELS[r]}
+                  </span>
+                </button>
+              ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto border-t border-white/10 mt-2">
+      {samlActivo && (
+        <div className="px-3 pt-4 pb-2">
+          <p className="text-sidebar-label text-white/40 px-2 mb-2">Rol</p>
+          <div
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm"
+            style={{ backgroundColor: "#00B364" }}
+          >
+            <span className="w-2 h-2 rounded-full shrink-0 bg-white" />
+            <span className="text-white font-medium">{ROLE_LABELS[role]}</span>
+          </div>
+        </div>
+      )}
+
+      <nav
+        className={`flex-1 px-3 py-3 space-y-0.5 overflow-y-auto border-t border-white/10 ${samlActivo ? "mt-2" : "mt-2"}`}
+      >
         <p className="text-sidebar-label text-white/40 px-2 mb-2">
           Navegación
         </p>
-        {NAV_ITEMS.filter((item) =>
-          ROLE_SECTIONS[role].includes(item.id)
+        {NAV_ITEMS.filter(
+          (item) =>
+            !item.hidden && ROLE_SECTIONS[role].includes(item.id)
         ).map((item) => {
           const Icon = item.icon;
           const active =
@@ -117,7 +158,9 @@ export function Sidebar({ onNavigate, className }: SidebarProps) {
                   (e.currentTarget as HTMLElement).style.backgroundColor = "";
               }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 min-h-11 rounded-lg text-sm transition-colors ${
-                active ? "text-white font-medium" : "text-white/60 hover:text-white"
+                active
+                  ? "text-white font-medium"
+                  : "text-white/60 hover:text-white"
               }`}
             >
               <Icon className="w-4 h-4 shrink-0" />
@@ -134,19 +177,19 @@ export function Sidebar({ onNavigate, className }: SidebarProps) {
             className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
             style={{ backgroundColor: "#167156" }}
           >
-            {ROLE_INITIALS[role]}
+            {initials}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium text-white leading-tight">
-              {ROLE_LABELS[role]}
+            <p className="text-xs font-medium text-white leading-tight truncate">
+              {displayName}
             </p>
-            <p className="text-xs text-white/40 truncate">uni.edu.mx</p>
+            <p className="text-xs text-white/40 truncate">{displayEmail}</p>
           </div>
         </div>
         <button
           type="button"
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 min-h-11 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 transition-colors border border-white/15"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2.5 min-h-11 rounded-lg text-sm font-medium text-white/60 hover:text-white hover:bg-[#167156] transition-colors"
         >
           <LogOut className="w-4 h-4 shrink-0" />
           Cerrar sesión
