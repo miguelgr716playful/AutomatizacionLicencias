@@ -1,0 +1,105 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\User\\Documents\\GitHub\\front-aprov-licencias\\tools\\AdobeUmapiConsole\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A1B2C3D4-E5F6-4789-A012-3456789ABCDE}|AdobeUmapiConsole.csproj|c:\\users\\user\\documents\\github\\front-aprov-licencias\\tools\\adobeumapiconsole\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1B2C3D4-E5F6-4789-A012-3456789ABCDE}|AdobeUmapiConsole.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1B2C3D4-E5F6-4789-A012-3456789ABCDE}|AdobeUmapiConsole.csproj|c:\\users\\user\\documents\\github\\front-aprov-licencias\\tools\\adobeumapiconsole\\models.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1B2C3D4-E5F6-4789-A012-3456789ABCDE}|AdobeUmapiConsole.csproj|solutionrelative:models.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1B2C3D4-E5F6-4789-A012-3456789ABCDE}|AdobeUmapiConsole.csproj|c:\\users\\user\\documents\\github\\front-aprov-licencias\\tools\\adobeumapiconsole\\appsettings.example.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A1B2C3D4-E5F6-4789-A012-3456789ABCDE}|AdobeUmapiConsole.csproj|solutionrelative:appsettings.example.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1B2C3D4-E5F6-4789-A012-3456789ABCDE}|AdobeUmapiConsole.csproj|c:\\users\\user\\documents\\github\\front-aprov-licencias\\tools\\adobeumapiconsole\\adobeumapiclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1B2C3D4-E5F6-4789-A012-3456789ABCDE}|AdobeUmapiConsole.csproj|solutionrelative:adobeumapiclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A1B2C3D4-E5F6-4789-A012-3456789ABCDE}|AdobeUmapiConsole.csproj|c:\\users\\user\\documents\\github\\front-aprov-licencias\\tools\\adobeumapiconsole\\adobeauthclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A1B2C3D4-E5F6-4789-A012-3456789ABCDE}|AdobeUmapiConsole.csproj|solutionrelative:adobeauthclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 4,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AdobeAuthClient.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Documents\\GitHub\\front-aprov-licencias\\tools\\AdobeUmapiConsole\\AdobeAuthClient.cs",
+              "RelativeDocumentMoniker": "AdobeAuthClient.cs",
+              "ToolTip": "C:\\Users\\User\\Documents\\GitHub\\front-aprov-licencias\\tools\\AdobeUmapiConsole\\AdobeAuthClient.cs",
+              "RelativeToolTip": "AdobeAuthClient.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-19T15:58:25.676Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "AdobeUmapiClient.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Documents\\GitHub\\front-aprov-licencias\\tools\\AdobeUmapiConsole\\AdobeUmapiClient.cs",
+              "RelativeDocumentMoniker": "AdobeUmapiClient.cs",
+              "ToolTip": "C:\\Users\\User\\Documents\\GitHub\\front-aprov-licencias\\tools\\AdobeUmapiConsole\\AdobeUmapiClient.cs",
+              "RelativeToolTip": "AdobeUmapiClient.cs",
+              "ViewState": "AgIAAM4AAAAAAAAAAAAUwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-19T15:58:13.052Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "appsettings.example.json",
+              "DocumentMoniker": "C:\\Users\\User\\Documents\\GitHub\\front-aprov-licencias\\tools\\AdobeUmapiConsole\\appsettings.example.json",
+              "RelativeDocumentMoniker": "appsettings.example.json",
+              "ToolTip": "C:\\Users\\User\\Documents\\GitHub\\front-aprov-licencias\\tools\\AdobeUmapiConsole\\appsettings.example.json",
+              "RelativeToolTip": "appsettings.example.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2026-08-19T15:58:01.697Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Models.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Documents\\GitHub\\front-aprov-licencias\\tools\\AdobeUmapiConsole\\Models.cs",
+              "RelativeDocumentMoniker": "Models.cs",
+              "ToolTip": "C:\\Users\\User\\Documents\\GitHub\\front-aprov-licencias\\tools\\AdobeUmapiConsole\\Models.cs",
+              "RelativeToolTip": "Models.cs",
+              "ViewState": "AgIAAFgAAAAAAAAAAAA8wAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-19T15:57:50.907Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\User\\Documents\\GitHub\\front-aprov-licencias\\tools\\AdobeUmapiConsole\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\User\\Documents\\GitHub\\front-aprov-licencias\\tools\\AdobeUmapiConsole\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAADcAAAAwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-08-19T15:57:09.553Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

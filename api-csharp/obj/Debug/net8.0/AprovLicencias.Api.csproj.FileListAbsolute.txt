@@ -1,0 +1,6 @@
+c:\Users\User\Documents\GitHub\front-aprov-licencias\api-csharp\obj\Debug\net8.0\AprovLicencias.Api.csproj.AssemblyReference.cache
+c:\Users\User\Documents\GitHub\front-aprov-licencias\api-csharp\obj\Debug\net8.0\AprovLicencias.Api.GeneratedMSBuildEditorConfig.editorconfig
+c:\Users\User\Documents\GitHub\front-aprov-licencias\api-csharp\obj\Debug\net8.0\AprovLicencias.Api.AssemblyInfoInputs.cache
+c:\Users\User\Documents\GitHub\front-aprov-licencias\api-csharp\obj\Debug\net8.0\AprovLicencias.Api.AssemblyInfo.cs
+c:\Users\User\Documents\GitHub\front-aprov-licencias\api-csharp\obj\Debug\net8.0\AprovLicencias.Api.csproj.CoreCompileInputs.cache
+c:\Users\User\Documents\GitHub\front-aprov-licencias\api-csharp\obj\Debug\net8.0\AprovLicencias.Api.sourcelink.json

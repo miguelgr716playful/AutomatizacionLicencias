@@ -1,0 +1,86 @@
+[
+  {
+    "PartitionKey": "users",
+    "RowKey": "cecilia.arron@tecmilenio.mx",
+    "email": "cecilia.arron@tecmilenio.mx",
+    "nombre": "Claudia Cecilia Arron Garcia",
+    "nomina": "L03085867",
+    "rol": "ejecutor"
+  },
+  {
+    "PartitionKey": "users",
+    "RowKey": "catalina.castillor@tecmilenio.mx",
+    "email": "catalina.castillor@tecmilenio.mx",
+    "nombre": "Maria Catalina Castillo Rocha",
+    "nomina": "L03568805",
+    "rol": "ejecutor"
+  },
+  {
+    "PartitionKey": "users",
+    "RowKey": "jgarzaf@tecmilenio.mx",
+    "email": "jgarzaf@tecmilenio.mx",
+    "nombre": "Juan Manuel Garza Franco",
+    "nomina": "L03539953",
+    "rol": "admin"
+  },
+  {
+    "PartitionKey": "users",
+    "RowKey": "jlopezr@tec.mx",
+    "email": "jlopezr@tec.mx",
+    "nombre": "Juan Antonio López De la Rosa",
+    "nomina": "L03086758",
+    "rol": "admin"
+  },
+  {
+    "PartitionKey": "users",
+    "RowKey": "oliver.bernal@tecmilenio.mx",
+    "email": "oliver.bernal@tecmilenio.mx",
+    "nombre": "Jesus Oliver Bernal Garcia",
+    "nomina": "L03515177",
+    "rol": "admin"
+  },
+  {
+    "PartitionKey": "users",
+    "RowKey": "t-mgonzalezr@tecmilenio.mx",
+    "email": "t-mgonzalezr@tecmilenio.mx",
+    "nombre": "Miguel Osvaldo Gonzalez Romo - Playful",
+    "rol": "admin"
+  },
+  {
+    "PartitionKey": "users",
+    "RowKey": "t-cvillegas@tecmilenio.mx",
+    "email": "t-cvillegas@tecmilenio.mx",
+    "nombre": "Cristian Jesus Villegas Torres - Ectotec",
+    "rol": "admin"
+  },
+  {
+    "PartitionKey": "users",
+    "RowKey": "jazz@tecmilenio.mx",
+    "email": "jazz@tecmilenio.mx",
+    "nombre": "Jazzmin Novelo Villegas",
+    "nomina": "L01448464",
+    "rol": "admin"
+  },
+  {
+    "PartitionKey": "users",
+    "RowKey": "angela.ruiz@tecmilenio.mx",
+    "email": "angela.ruiz@tecmilenio.mx",
+    "nombre": "Angela Lucia Ruiz Oyervidez",
+    "nomina": "L01153783",
+    "rol": "admin"
+  },
+  {
+    "PartitionKey": "users",
+    "RowKey": "jorge.jara@tecmilenio.mx",
+    "email": "jorge.jara@tecmilenio.mx",
+    "nombre": "Jorge Jara Juarez",
+    "rol": "admin"
+  },
+  {
+    "PartitionKey": "users",
+    "RowKey": "caso1@tecmilenio.mx",
+    "email": "caso1@tecmilenio.mx",
+    "nombre": "Cesar Osmar Urdiales",
+    "rol": "admin"
+  }
+]

@@ -1,0 +1,204 @@
+[
+  {
+    "name": "AdobeLicencias",
+    "scriptFile": "AprovLicencias.Api.dll",
+    "entryPoint": "AprovLicencias.Api.Functions.AdobeLicenciasFunction.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Anonymous",
+        "methods": [
+          "get",
+          "post",
+          "options"
+        ],
+        "route": "v1/adobe/{action?}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "AuthLogout",
+    "scriptFile": "AprovLicencias.Api.dll",
+    "entryPoint": "AprovLicencias.Api.Functions.AuthLogoutFunction.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Anonymous",
+        "methods": [
+          "get",
+          "post",
+          "options"
+        ],
+        "route": "v1/auth/logout",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "AuthMe",
+    "scriptFile": "AprovLicencias.Api.dll",
+    "entryPoint": "AprovLicencias.Api.Functions.AuthMeFunction.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Anonymous",
+        "methods": [
+          "get",
+          "options"
+        ],
+        "route": "v1/auth/me",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "Configuracion",
+    "scriptFile": "AprovLicencias.Api.dll",
+    "entryPoint": "AprovLicencias.Api.Functions.ConfiguracionFunction.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Anonymous",
+        "methods": [
+          "get",
+          "put",
+          "options"
+        ],
+        "route": "v1/configuracion/{action?}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "Health",
+    "scriptFile": "AprovLicencias.Api.dll",
+    "entryPoint": "AprovLicencias.Api.Functions.HealthFunction.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Anonymous",
+        "methods": [
+          "get",
+          "options"
+        ],
+        "route": "v1/health",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "LicenciasUpload",
+    "scriptFile": "AprovLicencias.Api.dll",
+    "entryPoint": "AprovLicencias.Api.Functions.LicenciasUploadFunction.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Anonymous",
+        "methods": [
+          "post",
+          "options"
+        ],
+        "route": "v1/licencias/upload",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  },
+  {
+    "name": "Usuarios",
+    "scriptFile": "AprovLicencias.Api.dll",
+    "entryPoint": "AprovLicencias.Api.Functions.UsuariosFunction.Run",
+    "language": "dotnet-isolated",
+    "properties": {
+      "IsCodeless": false
+    },
+    "bindings": [
+      {
+        "name": "req",
+        "direction": "In",
+        "type": "httpTrigger",
+        "authLevel": "Anonymous",
+        "methods": [
+          "get",
+          "post",
+          "patch",
+          "delete",
+          "options"
+        ],
+        "route": "v1/usuarios/{action?}",
+        "properties": {}
+      },
+      {
+        "name": "$return",
+        "type": "http",
+        "direction": "Out"
+      }
+    ]
+  }
+]
