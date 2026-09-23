@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LogIn } from "lucide-react";
+import { getDefaultHrefForRole } from "@/lib/constants";
 
 export function LoginForm() {
   const router = useRouter();
@@ -13,16 +14,14 @@ export function LoginForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    router.push("/dashboard");
+    router.push(getDefaultHrefForRole("admin"));
   };
 
   return (
     <div className="relative z-10 w-full max-w-md">
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-white/20 shadow-2xl p-6 sm:p-8">
         <div className="text-center mb-8">
-          <h1 className="text-page-title">
-            Automatización de Licencias
-          </h1>
+          <h1 className="text-page-title">Automatización de Licencias</h1>
           <p className="text-page-subtitle mt-1">
             Ingresa tus credenciales institucionales
           </p>
@@ -68,7 +67,7 @@ export function LoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 sm:py-2.5 min-h-11 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-70"
+            className="btn-primary w-full px-4 py-3 sm:py-2.5 min-h-11"
           >
             <LogIn className="w-4 h-4" />
             {loading ? "Ingresando..." : "Iniciar sesión"}

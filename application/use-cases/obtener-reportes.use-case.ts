@@ -9,7 +9,7 @@ export class ObtenerReportesUseCase {
   constructor(private readonly reporteRepo: IReporteRepository) {}
 
   async ejecutar(input: ReportesRequest): Promise<ReportesResponse> {
-    const pageSize = PAGE_SIZE;
+    const pageSize = input.pageSize ?? PAGE_SIZE;
     const [paginado, estadisticas] = await Promise.all([
       this.reporteRepo.listar(
         {

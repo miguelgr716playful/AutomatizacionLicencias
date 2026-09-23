@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://ambitious-island-01ab11110.7.azurestaticapps.net/">
+  <SPSSODescriptor AuthnRequestsSigned="true" WantAssertionsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <KeyDescriptor use="signing">
+      <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+        <ds:X509Data>
+          <ds:X509Certificate>MIIDFjCCAf6gAwIBAgIJXCRkcu+ET0x7MA0GCSqGSIb3DQEBCwUAMDsxOTA3BgNVBAMTMGFtYml0aW91cy1pc2xhbmQtMDFhYjExMTEwLjcuYXp1cmVzdGF0aWNhcHBzLm5ldDAeFw0yNjA4MTAxODQ2MTdaFw0zNjA4MDcxODQ2MTdaMDsxOTA3BgNVBAMTMGFtYml0aW91cy1pc2xhbmQtMDFhYjExMTEwLjcuYXp1cmVzdGF0aWNhcHBzLm5ldDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALfoZM/tQG18QmeMmPJHFu3KmvLA7hIlejm34x/ztmD6eBAgkvni0ogCE3DXEtd6JipTgFj3Fl1YosqK8ymfup865NkH2GkzCcrZFCWbLOYw29yW8RtJV91oaE5LkEx4OA36obSJO0uIdeeOXwQ8KTqHGwCjjs3mwli7t+naMaUROxO6XX1aOjSRISCkirMOzK5H2YXr4gSTXC7uPK/2DiMQk6Gba7Bki7UnaToxYioT/Zoyi3W53FbOQAtdHiR4c8rLSwGEipL+vE5hsTRRNvqF8XlALxmJNEhWSW8d15YUE2pLiqF3v0jrSsRqfvZgawuzER3oJa5QQayxUlYlyX0CAwEAAaMdMBswCQYDVR0TBAIwADAOBgNVHQ8BAf8EBAMCBaAwDQYJKoZIhvcNAQELBQADggEBALcGPUCoVMM4Lflj7YqeH8IB9uyVDXQhqlF3/BO4BNfDMbh+htoy8s2LTSGkQFyb1W7uwBWvzdhIKn7tf58nS6iGCIgKm/h+WXYXObGA9clvH6YkMQtLf7xu93Y9d5KcX6EVdb9VuDgxf6yneIlLUZb4XPCjtMLVJ78NIhzUjUVKx37bWFV8px0T9OAxmgSMN++omuW0/N16lt0Pr/Mm86gnmSqYyZOu1M7WSkAnrnsmu9OrseAOZns5q5I9eX2nfU88vAim6AFfsb6EezKbuTDa2XwI5vkaG0dE0a0Dm7wnP0W6mtNlPG7IN5eB3HkU7XbonHKMiYbsfnsa/Bojzeo=</ds:X509Certificate>
+        </ds:X509Data>
+      </ds:KeyInfo>
+    </KeyDescriptor>
+    <KeyDescriptor use="encryption">
+      <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+        <ds:X509Data>
+          <ds:X509Certificate>MIIDFjCCAf6gAwIBAgIJXCRkcu+ET0x7MA0GCSqGSIb3DQEBCwUAMDsxOTA3BgNVBAMTMGFtYml0aW91cy1pc2xhbmQtMDFhYjExMTEwLjcuYXp1cmVzdGF0aWNhcHBzLm5ldDAeFw0yNjA4MTAxODQ2MTdaFw0zNjA4MDcxODQ2MTdaMDsxOTA3BgNVBAMTMGFtYml0aW91cy1pc2xhbmQtMDFhYjExMTEwLjcuYXp1cmVzdGF0aWNhcHBzLm5ldDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALfoZM/tQG18QmeMmPJHFu3KmvLA7hIlejm34x/ztmD6eBAgkvni0ogCE3DXEtd6JipTgFj3Fl1YosqK8ymfup865NkH2GkzCcrZFCWbLOYw29yW8RtJV91oaE5LkEx4OA36obSJO0uIdeeOXwQ8KTqHGwCjjs3mwli7t+naMaUROxO6XX1aOjSRISCkirMOzK5H2YXr4gSTXC7uPK/2DiMQk6Gba7Bki7UnaToxYioT/Zoyi3W53FbOQAtdHiR4c8rLSwGEipL+vE5hsTRRNvqF8XlALxmJNEhWSW8d15YUE2pLiqF3v0jrSsRqfvZgawuzER3oJa5QQayxUlYlyX0CAwEAAaMdMBswCQYDVR0TBAIwADAOBgNVHQ8BAf8EBAMCBaAwDQYJKoZIhvcNAQELBQADggEBALcGPUCoVMM4Lflj7YqeH8IB9uyVDXQhqlF3/BO4BNfDMbh+htoy8s2LTSGkQFyb1W7uwBWvzdhIKn7tf58nS6iGCIgKm/h+WXYXObGA9clvH6YkMQtLf7xu93Y9d5KcX6EVdb9VuDgxf6yneIlLUZb4XPCjtMLVJ78NIhzUjUVKx37bWFV8px0T9OAxmgSMN++omuW0/N16lt0Pr/Mm86gnmSqYyZOu1M7WSkAnrnsmu9OrseAOZns5q5I9eX2nfU88vAim6AFfsb6EezKbuTDa2XwI5vkaG0dE0a0Dm7wnP0W6mtNlPG7IN5eB3HkU7XbonHKMiYbsfnsa/Bojzeo=</ds:X509Certificate>
+        </ds:X509Data>
+      </ds:KeyInfo>
+    </KeyDescriptor>
+    <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://ambitious-island-01ab11110.7.azurestaticapps.net/api/v1/auth/saml/slo"/>
+    <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://ambitious-island-01ab11110.7.azurestaticapps.net/api/v1/auth/saml/slo"/>
+    <NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</NameIDFormat>
+    <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://ambitious-island-01ab11110.7.azurestaticapps.net/api/v1/auth/saml/acs" index="0" isDefault="true"/>
+  </SPSSODescriptor>
+</EntityDescriptor>

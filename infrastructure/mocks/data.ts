@@ -3,6 +3,11 @@ import type { TendenciaMes } from "@/domain/entities/dashboard";
 import type { MovimientoReporte } from "@/domain/entities/reporte";
 import type { CampoMapeo } from "@/domain/entities/configuracion";
 
+function splitAlumnoColaborador(total: number, ratioAlumnos = 0.71) {
+  const alumnos = Math.round(total * ratioAlumnos);
+  return { alumnos, colaboradores: total - alumnos };
+}
+
 export const barData: TendenciaMes[] = [
   { mes: "Ene", adobe: 312, minitab: 88 },
   { mes: "Feb", adobe: 328, minitab: 91 },
@@ -12,7 +17,19 @@ export const barData: TendenciaMes[] = [
   { mes: "Jun", adobe: 370, minitab: 108 },
   { mes: "Jul", adobe: 410, minitab: 115 },
   { mes: "Ago", adobe: 445, minitab: 128 },
-];
+].map(({ mes, adobe, minitab }) => {
+  const adobeSplit = splitAlumnoColaborador(adobe);
+  const minitabSplit = splitAlumnoColaborador(minitab);
+  return {
+    mes,
+    adobe,
+    minitab,
+    adobeAlumnos: adobeSplit.alumnos,
+    adobeColaboradores: adobeSplit.colaboradores,
+    minitabAlumnos: minitabSplit.alumnos,
+    minitabColaboradores: minitabSplit.colaboradores,
+  };
+});
 
 export const actividadReciente: ActividadLicencia[] = [
   {
@@ -80,7 +97,7 @@ export const reporteData: MovimientoReporte[] = [
     id: "A01234567",
     clave: "DIS-101",
     nivel: "Lic.",
-    software: "Adobe CC",
+    software: "Adobe",
     accion: "Alta",
     origen: "ETL",
     operador: "sistema",
@@ -92,7 +109,7 @@ export const reporteData: MovimientoReporte[] = [
     id: "A01234890",
     clave: "DIS-205",
     nivel: "Lic.",
-    software: "Adobe CC",
+    software: "Adobe",
     accion: "Alta",
     origen: "ETL",
     operador: "sistema",
@@ -104,7 +121,7 @@ export const reporteData: MovimientoReporte[] = [
     id: "A01299001",
     clave: "MKT-310",
     nivel: "Lic.",
-    software: "Adobe CC",
+    software: "Adobe",
     accion: "Alta",
     origen: "Manual",
     operador: "admin",
@@ -140,7 +157,7 @@ export const reporteData: MovimientoReporte[] = [
     id: "A01099834",
     clave: "ARQ-150",
     nivel: "Lic.",
-    software: "Adobe CC",
+    software: "Adobe",
     accion: "Baja",
     origen: "ETL",
     operador: "sistema",
@@ -164,7 +181,7 @@ export const reporteData: MovimientoReporte[] = [
     id: "A01102938",
     clave: "MAT-210",
     nivel: "Lic.",
-    software: "Adobe CC",
+    software: "Adobe",
     accion: "Alta",
     origen: "ETL",
     operador: "sistema",
@@ -191,4 +208,19 @@ export function getPeriodicidad(): string {
 
 export function setPeriodicidad(value: string): void {
   periodicidadActual = value;
+}
+
+export function setMapeoProveedor(
+  proveedorId: "adobe" | "minitab",
+  mapping: CampoMapeo[]
+): void {
+  const target = proveedorId === "adobe" ? adobeMapping : minitabMapping;
+  target.splice(
+    0,
+    target.length,
+    ...mapping.map((m) => ({
+      local: m.local.trim(),
+      api: m.api.trim(),
+    }))
+  );
 }

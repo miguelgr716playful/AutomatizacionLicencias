@@ -1,22 +1,28 @@
 "use client";
 
+import { useState } from "react";
 import {
   CheckCircle2,
   ChevronDown,
-  AlertTriangle,
   Upload,
 } from "lucide-react";
 import { useAprovisionar } from "@/hooks/use-aprovisionar";
-import type { SoftwareId } from "@/domain/value-objects/software";
+import { RegistrosPreviewDialog } from "@/components/sections/registros-preview-dialog";
+import {
+  getSoftwareFileLabel,
+  SOFTWARE_IDS,
+  SOFTWARE_LABELS,
+  type SoftwareId,
+} from "@/domain/value-objects/software";
 
 export function AprovisionarSection() {
+  const [previewOpen, setPreviewOpen] = useState(false);
   const {
     software,
     setSoftware,
-    tipoOp,
-    setTipoOp,
     fileName,
     registroCount,
+    registros,
     seleccionarArchivo,
     drag,
     setDrag,
@@ -26,18 +32,30 @@ export function AprovisionarSection() {
     procesar,
   } = useAprovisionar();
 
+  const archivoLabel = software
+    ? getSoftwareFileLabel(software)
+    : "Archivo de Datos (Claves Banner)";
+
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-page-title">Aprovisionar Licencias</h1>
+        <h1 className="text-page-title">Carga archivo</h1>
         <p className="text-page-subtitle">
-          Aprovisiona o revoca licencias de software usando archivos CSV con
-          Claves Banner.
+          Carga archivos CSV con Claves Banner para asignar licencias de software.
         </p>
       </div>
 
       <div className="max-w-3xl mx-auto bg-white rounded-xl border border-border shadow-sm p-4 sm:p-8 space-y-6">
-        <h2 className="text-section-title">Gestión de Licencias</h2>
+        <div>
+          <h2 className="text-section-title">Gestión de Licencias</h2>
+          <div className="mt-3 flex items-center gap-3 rounded-xl border-2 border-emerald-500 bg-emerald-50 px-4 py-3">
+            <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-600" />
+            <div>
+              <p className="text-sm font-semibold text-emerald-700">Carga archivo</p>
+              <p className="text-xs text-emerald-600">Asignar nuevas licencias</p>
+            </div>
+          </div>
+        </div>
 
         <div>
           <label className="text-sm font-medium text-foreground block mb-1.5">
@@ -52,8 +70,11 @@ export function AprovisionarSection() {
               className="w-full text-base sm:text-sm px-3 py-3 sm:py-2.5 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none text-muted-foreground"
             >
               <option value="">Seleccionar software</option>
-              <option value="adobe">Adobe Creative Cloud</option>
-              <option value="minitab">Minitab</option>
+              {SOFTWARE_IDS.map((id) => (
+                <option key={id} value={id}>
+                  {SOFTWARE_LABELS[id]}
+                </option>
+              ))}
             </select>
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           </div>
@@ -61,61 +82,7 @@ export function AprovisionarSection() {
 
         <div>
           <label className="text-sm font-medium text-foreground block mb-2">
-            Tipo de Operación
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => setTipoOp("aprov")}
-              className={`flex flex-col items-center gap-2 py-5 px-4 rounded-xl border-2 transition-all ${
-                tipoOp === "aprov"
-                  ? "border-emerald-500 bg-emerald-50"
-                  : "border-border bg-white hover:border-emerald-300"
-              }`}
-            >
-              <CheckCircle2
-                className={`w-6 h-6 ${tipoOp === "aprov" ? "text-emerald-600" : "text-muted-foreground"}`}
-              />
-              <span
-                className={`text-sm font-semibold ${tipoOp === "aprov" ? "text-emerald-700" : "text-foreground"}`}
-              >
-                Aprovisionamiento
-              </span>
-              <span
-                className={`text-xs ${tipoOp === "aprov" ? "text-emerald-600" : "text-muted-foreground"}`}
-              >
-                Asignar nuevas licencias
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setTipoOp("desaprov")}
-              className={`flex flex-col items-center gap-2 py-5 px-4 rounded-xl border-2 transition-all ${
-                tipoOp === "desaprov"
-                  ? "border-orange-400 bg-orange-50"
-                  : "border-border bg-white hover:border-orange-300"
-              }`}
-            >
-              <AlertTriangle
-                className={`w-6 h-6 ${tipoOp === "desaprov" ? "text-orange-500" : "text-muted-foreground"}`}
-              />
-              <span
-                className={`text-sm font-semibold ${tipoOp === "desaprov" ? "text-orange-600" : "text-foreground"}`}
-              >
-                Desaprovisionamiento
-              </span>
-              <span
-                className={`text-xs ${tipoOp === "desaprov" ? "text-orange-500" : "text-muted-foreground"}`}
-              >
-                Revocar acceso masivo
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-foreground block mb-2">
-            Archivo de Datos (Claves Banner)
+            {archivoLabel}
           </label>
           <div
             role="button"
@@ -160,7 +127,17 @@ export function AprovisionarSection() {
                   <p className="text-xs text-muted-foreground mt-1">
                     {registroCount}{" "}
                     {registroCount === 1 ? "registro listo" : "registros listos"} para
-                    enviar
+                    enviar ·{" "}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPreviewOpen(true);
+                      }}
+                      className="text-emerald-600 font-medium underline underline-offset-2 hover:text-emerald-700"
+                    >
+                      Ver datos cargados
+                    </button>
                   </p>
                 )}
               </>
@@ -191,6 +168,16 @@ export function AprovisionarSection() {
               Operación {resultado.operacionId} · {resultado.registrosProcesados}{" "}
               registros
             </p>
+            {resultado.blobName && (
+              <p className="text-xs text-emerald-600 mt-1 font-mono break-all">
+                Vigente: {resultado.container}/{resultado.blobName}
+              </p>
+            )}
+            {resultado.historicoBlobName && (
+              <p className="text-xs text-emerald-600/80 mt-1 font-mono break-all">
+                Histórico: {resultado.container}/{resultado.historicoBlobName}
+              </p>
+            )}
           </div>
         )}
 
@@ -199,12 +186,19 @@ export function AprovisionarSection() {
             type="button"
             onClick={() => procesar()}
             disabled={procesando}
-            className="w-full px-6 py-3 min-h-11 rounded-lg bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 transition-colors disabled:opacity-50 sm:w-auto"
+            className="btn-primary w-full px-6 py-3 min-h-11 sm:w-auto"
           >
             {procesando ? "Procesando..." : "Procesar Archivo"}
           </button>
         </div>
       </div>
+
+      <RegistrosPreviewDialog
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        fileName={fileName}
+        registros={registros}
+      />
     </div>
   );
 }

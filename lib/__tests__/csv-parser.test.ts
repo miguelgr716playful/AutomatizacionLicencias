@@ -31,4 +31,28 @@ T001,a@test.com
 
     expect(parseCsvText(csv)).toHaveLength(1);
   });
+
+  it("parsea columna asignatura", () => {
+    const csv = `banner_id,asignatura
+LSTI1825,EST-201
+LSTI6008,DIS-101`;
+
+    const registros = parseCsvText(csv);
+
+    expect(registros).toHaveLength(2);
+    expect(registros[0]).toEqual({
+      bannerId: "LSTI1825",
+      asignatura: "EST-201",
+    });
+  });
+
+  it("parsea clave como asignatura cuando no es la columna banner", () => {
+    const csv = `banner_id,clave
+LSTI1825,EST-201`;
+
+    expect(parseCsvText(csv)[0]).toEqual({
+      bannerId: "LSTI1825",
+      asignatura: "EST-201",
+    });
+  });
 });

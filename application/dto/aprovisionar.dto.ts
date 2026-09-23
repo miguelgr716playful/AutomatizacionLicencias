@@ -3,6 +3,7 @@ import type { SoftwareId, TipoOperacion } from "@/domain/value-objects/software"
 /** Registro parseado del CSV (claves Banner) listo para enviar a Azure Functions → ADF */
 export interface RegistroBanner {
   bannerId: string;
+  asignatura?: string;
   email?: string;
   nombres?: string;
   apellidos?: string;
@@ -21,4 +22,9 @@ export interface AprovisionarResponse {
   registrosProcesados: number;
   estado: string;
   mensaje: string;
+  /** Ruta del CSV vigente (nombre fijo, se reemplaza) */
+  blobName?: string;
+  /** Copia archivada de esta carga */
+  historicoBlobName?: string;
+  container?: string;
 }

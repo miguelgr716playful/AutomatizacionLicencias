@@ -1,0 +1,75 @@
+name: Deploy FA-DEVL-AprovLicencias (C#)
+
+on:
+  push:
+    branches:
+      - Version2
+    paths:
+      - "function-app-csharp/**"
+      - ".github/workflows/azure-function-app-fa-devl.yml"
+  pull_request:
+    paths:
+      - "function-app-csharp/**"
+      - ".github/workflows/azure-function-app-fa-devl.yml"
+  workflow_dispatch:
+
+env:
+  AZURE_FUNCTIONAPP_NAME: FA-DEVL-AprovLicencias
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: function-app-csharp
+  DOTNET_VERSION: "8.0.x"
+
+jobs:
+  build:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    name: Build Function App (PR)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore
+        working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+        working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
+  deploy:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    name: Build and Deploy Function App
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore
+        working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
+      - name: Publish
+        run: dotnet publish --configuration Release --output ./output
+        working-directory: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
+      - name: Verify publish profile secret
+        run: |
+          if [ -z "${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE_FA_DEVL }}" ]; then
+            echo "::error::Falta el secret AZURE_FUNCTIONAPP_PUBLISH_PROFILE_FA_DEVL en GitHub (Settings → Secrets)."
+            exit 1
+          fi
+
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output
+          sku: flexconsumption
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE_FA_DEVL }}

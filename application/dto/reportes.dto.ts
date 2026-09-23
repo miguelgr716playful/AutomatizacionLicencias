@@ -6,6 +6,7 @@ export interface ReportesRequest {
   origen: string;
   busqueda: string;
   page: number;
+  pageSize?: number;
 }
 
 export interface ReportesResponse {

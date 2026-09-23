@@ -4,13 +4,19 @@ import {
   UserPlus,
   FileText,
   Settings,
+  Users,
+  KeyRound,
+  Gauge,
 } from "lucide-react";
 
 export type Section =
   | "dashboard"
   | "aprovisionar"
+  | "asignacion-licencias"
+  | "cuotas-adobe"
   | "reportes"
-  | "configuracion";
+  | "configuracion"
+  | "usuarios";
 
 export type Role = "admin" | "ejecutor" | "auditor";
 
@@ -19,26 +25,46 @@ export interface NavItem {
   label: string;
   icon: ElementType;
   href: string;
+  hidden?: boolean;
 }
 
 export const NAV_ITEMS: NavItem[] = [
   {
-    id: "dashboard",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    href: "/dashboard",
-  },
-  {
     id: "aprovisionar",
-    label: "Aprovisionar",
+    label: "Carga archivo",
     icon: UserPlus,
     href: "/aprovisionar",
+  },
+  {
+    id: "asignacion-licencias",
+    label: "Asignación licencias",
+    icon: KeyRound,
+    href: "/asignacion-licencias",
+  },
+  {
+    id: "cuotas-adobe",
+    label: "Cuotas Adobe",
+    icon: Gauge,
+    href: "/cuotas-adobe",
+  },
+  {
+    id: "dashboard",
+    label: "Panel General",
+    icon: LayoutDashboard,
+    href: "/dashboard",
   },
   {
     id: "reportes",
     label: "Reportes",
     icon: FileText,
     href: "/reportes",
+    hidden: true,
+  },
+  {
+    id: "usuarios",
+    label: "Usuarios",
+    icon: Users,
+    href: "/usuarios",
   },
   {
     id: "configuracion",
@@ -47,6 +73,9 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/configuracion",
   },
 ];
+
+/** Roles ocultos en el selector (se mantienen en código por si se reactivan). */
+export const HIDDEN_ROLES: Role[] = ["auditor"];
 
 export const ROLE_LABELS: Record<Role, string> = {
   admin: "Administrador",
@@ -61,16 +90,32 @@ export const ROLE_INITIALS: Record<Role, string> = {
 };
 
 export const ROLE_SECTIONS: Record<Role, Section[]> = {
-  admin: ["dashboard", "aprovisionar", "reportes", "configuracion"],
-  ejecutor: ["aprovisionar", "configuracion"],
+  admin: [
+    "dashboard",
+    "aprovisionar",
+    "asignacion-licencias",
+    "cuotas-adobe",
+    "reportes",
+    "usuarios",
+    "configuracion",
+  ],
+  ejecutor: [
+    "aprovisionar",
+    "asignacion-licencias",
+    "cuotas-adobe",
+    "dashboard",
+  ],
   auditor: ["dashboard", "reportes"],
 };
 
 export const SECTION_HREFS: Record<Section, string> = {
   dashboard: "/dashboard",
   aprovisionar: "/aprovisionar",
+  "asignacion-licencias": "/asignacion-licencias",
+  "cuotas-adobe": "/cuotas-adobe",
   reportes: "/reportes",
   configuracion: "/configuracion",
+  usuarios: "/usuarios",
 };
 
 export function getDefaultHrefForRole(role: Role): string {

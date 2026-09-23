@@ -1,6 +1,6 @@
 # Plan de despliegue — Azure Static Web Apps
 
-Guía para publicar **Automatización de Licencias** en Azure Static Web Apps (SWA), alineada con el stack actual (Next.js 15, mocks en cliente, sin API routes).
+Guía para publicar **Automatización de Licencias** en Azure Static Web Apps (SWA), alineada al stack actual (Next.js 15 static export, BFF Node en `api/`, FA C# aparte).
 
 ---
 
@@ -37,9 +37,10 @@ flowchart TB
     end
 
     subgraph azure["Azure"]
-        SWA["Static Web App (portal)"]
+        SWA["Static Web App (portal + api/ BFF)"]
         CDN["CDN global SWA"]
-        Fn["Azure Functions (BFF)"]
+        FA["Function App C# (FA-DEVL)"]
+        KV["Key Vault"]
         ADF["Azure Data Factory"]
     end
 
@@ -49,8 +50,9 @@ flowchart TB
     Main --> GHA
     GHA -->|"production"| SWA
     SWA --> CDN
-    SWA -->|"Linked Backend"| Fn
-    Fn --> ADF
+    SWA -->|"FaApiKey proxy"| FA
+    FA --> KV
+    FA --> ADF
 ```
 
 ---
@@ -187,7 +189,7 @@ Al crear la SWA desde el portal, Azure genera `.github/workflows/azure-static-we
 | Parámetro | Valor |
 |-----------|-------|
 | `app_location` | `/` |
-| `api_location` | `""` (Functions es linked backend, no carpeta local) |
+| `api_location` | `api` (Azure Functions managed en `/api/*`, mismo dominio SWA) |
 | `output_location` | `out` |
 | `app_build_command` | `npm run build` |
 
@@ -223,9 +225,39 @@ env:
 7. Ajustar:
    - App location: `/`
    - Output location: `out`
-   - API location: vacío
+   - API location: `api` (carpeta managed Functions en el repo)
 
 Azure crea automáticamente el workflow y el secret `AZURE_STATIC_WEB_APPS_API_TOKEN` en GitHub.
+
+### API SAML (managed Functions en el mismo SWA)
+
+El código en `api/` (Node BFF) se publica con el portal (`api_location: api`). La **FA C#** se despliega aparte desde `back-aprov-licencias`.
+
+App settings en **SWA → Configuration**:
+
+**SAML / sesión:**
+- `SAML_IDP_ENTRY_POINT`, `SAML_IDP_CERT`, `SESSION_SECRET`, etc.
+- `SAML_FRONTEND_URL` / `SAML_FUNCTIONS_BASE_URL`
+- `StorageConnectionString` (ACS → `AuthorizedUsers`)
+
+**Proxy hacia FA C#:**
+- `FaApiKey` — mismo valor que `FA-DEVL-AprovLicencias`
+- `FaBaseUrl` — `https://fa-devl-aprovlicencias.azurewebsites.net`
+
+**No configurar en SWA:** `AdobeOrgId`, `AdobeClientId`, `AdobeClientSecret`.
+
+Build / runtime:
+
+`NEXT_PUBLIC_API_BASE_URL=https://<tu-swa>.azurestaticapps.net/api`
+
+Endpoints:
+
+- `GET /api/v1/auth/saml/login`
+- `POST /api/v1/auth/saml/acs`
+- `GET|POST /api/v1/auth/saml/slo`
+- `GET /api/v1/auth/saml/metadata`
+- `GET /api/v1/auth/me`
+- Metadata estática: `/saml/sp-metadata.xml`
 
 ### Entornos sugeridos
 
@@ -287,43 +319,46 @@ Hoy no hay `.env` críticos (mocks). Preparar para integraciones futuras:
 
 | Variable | Cuándo | Dónde configurar |
 |----------|--------|------------------|
-| `NEXT_PUBLIC_API_BASE_URL` | Azure Functions (BFF) | SWA → Configuration → Application settings |
-| Token NAM | Auth producción | Pendiente doc identidad ITESM |
-| Secrets Adobe/Minitab | Nunca en front | Key Vault → Functions (validar Juan Manuel) |
+| `NEXT_PUBLIC_API_BASE_URL` | Llamadas al BFF SWA | SWA → Configuration |
+| `FaApiKey` / `FaBaseUrl` | Proxy → FA C# | SWA → Configuration (API) |
+| SAML + `SESSION_SECRET` | Login AMFS | SWA → Configuration |
+| Secrets Adobe | Nunca en SWA | Key Vault → FA C# (Managed Identity) |
 
 > En static export, solo variables `NEXT_PUBLIC_*` están disponibles en el cliente (se inlined en build).
 
 ---
 
-## 9. Autenticación (fase futura — NAM)
+## 9. Autenticación (SAML AMFS — implementado DEVL)
 
-Hoy el login es demo (`router.push("/dashboard")`). Para producción:
+Login institucional vía **AMFS DEVL** (`amfsdevl.tec.mx`). Ver [SAML-AMFS.md](./SAML-AMFS.md).
 
-1. Registrar la app con **identidad ITESM**: `dsi.identidad@itesm.mx`
-2. Integrar **NAM** según documentación del equipo identidad
-3. Roles (`admin`, `ejecutor`, `auditor`) desde claims del token
-4. Functions valida token en cada request
-
-Ver [DECISIONES-ARQUITECTURA.md](./DECISIONES-ARQUITECTURA.md).
+- `NEXT_PUBLIC_SAML_LOGIN=true` en build del portal
+- Roles desde tabla `AuthorizedUsers` tras ACS
+- PROD: IdP productivo (no `amfsdevl`) — ver [AMBIENTE-PROD.md](./AMBIENTE-PROD.md)
 
 ---
 
-## 10. Backend con Azure Functions (sin hybrid Next.js)
+## 10. Backend (BFF Node + FA C# — sin hybrid Next.js)
 
-Cuando Alfonso despliegue Azure Functions:
+Estado **version4**:
 
 ```mermaid
 flowchart LR
-    SWA["SWA static export"] -->|"NEXT_PUBLIC_API_BASE_URL"| Fn["Azure Functions"]
-    Fn --> ADF["Azure Data Factory"]
+    SWA["SWA static + api/ BFF"] -->|"NEXT_PUBLIC_API_BASE_URL"| Browser
+    Browser --> SWA
+    SWA -->|"FaApiKey"| FA["FA C#"]
+    FA --> KV["Key Vault"]
+    FA --> ADF["ADF"]
 ```
 
-Pasos:
+Pasos operativos:
 
-1. Desplegar Azure Functions con endpoints `/v1/*`
-2. Vincular Functions como **Linked Backend** en la SWA
-3. Configurar `NEXT_PUBLIC_API_BASE_URL` en SWA
-4. En el portal, cambiar DI a `HttpLicenciaRepository` (y demás repos HTTP)
+1. Desplegar SWA con `api_location: api` (SAML + proxy)
+2. Desplegar **FA C#** desde `back-aprov-licencias`
+3. Configurar `FaApiKey`, `FaBaseUrl`, SAML y `StorageConnectionString` en SWA
+4. Configurar `KeyVaultUrl`, `FaApiKey`, `StorageConnectionString` en FA
+
+Detalle: [FRONT-BACK.md](./FRONT-BACK.md), [SWA-FA-PROXY.md](./SWA-FA-PROXY.md).
 
 **No es necesario** quitar `output: "export"` ni migrar a hybrid Next.js.
 
@@ -358,11 +393,13 @@ Pasos:
 - [ ] Plan Standard si se requiere SLA / más entornos
 - [ ] Integración **NAM** para login real
 
-### Fase 4 — Backend (cuando aplique)
+### Fase 4 — Backend (parcial — version4)
 
-- [ ] Azure Functions desplegadas y vinculadas como Linked Backend
-- [ ] Sustituir mocks por repos HTTP (`HttpLicenciaRepository`, etc.)
-- [ ] Key Vault para credenciales Adobe/Minitab
+- [x] BFF Node en SWA (SAML + proxy)
+- [x] FA C# con Adobe UMAPI + Key Vault
+- [x] Upload CSV → Blob vía FA
+- [ ] `POST /licencias/operaciones` → ADF
+- [ ] Dashboard / reportes desde ETL (sustituir mocks)
 
 ---
 
@@ -396,6 +433,8 @@ Pasos:
 - [Next.js support on Azure Static Web Apps](https://learn.microsoft.com/en-us/azure/static-web-apps/nextjs)
 - [Deploy hybrid Next.js on SWA](https://learn.microsoft.com/en-us/azure/static-web-apps/deploy-nextjs-hybrid)
 - [Configuration file for SWA](https://learn.microsoft.com/en-us/azure/static-web-apps/configuration)
+- [Front ↔ Back](./FRONT-BACK.md)
+- [Proxy SWA → FA](./SWA-FA-PROXY.md)
 - [Arquitectura del proyecto](./ARQUITECTURA.md)
 - [Decisiones de arquitectura Azure](./DECISIONES-ARQUITECTURA.md)
 - [Endpoints Épica 2](./EPICA-2-ENDPOINTS.md)

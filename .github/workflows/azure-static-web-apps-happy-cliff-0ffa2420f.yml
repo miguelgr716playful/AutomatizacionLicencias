@@ -3,11 +3,9 @@ name: Azure Static Web Apps CI/CD
 on:
   push:
     branches:
-      - main
+      - "**"
   pull_request:
     types: [opened, synchronize, reopened, closed]
-    branches:
-      - main
 
 jobs:
   build_and_deploy_job:
@@ -28,11 +26,15 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: upload
           app_location: /
-          api_location: ""
+          # API SAML en el mismo SWA (no se usa Function App externa)
+          api_location: api
           output_location: out
           app_build_command: npm run build
         env:
           IS_STATIC_EXPORT: true
+          NEXT_PUBLIC_API_BASE_URL: https://ambitious-island-01ab11110.7.azurestaticapps.net/api
+          # Login demo local (correo/contraseña). SSO AMFS desactivado.
+          NEXT_PUBLIC_SAML_LOGIN: "false"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
