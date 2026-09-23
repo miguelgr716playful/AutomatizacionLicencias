@@ -33,8 +33,8 @@ jobs:
         env:
           IS_STATIC_EXPORT: true
           NEXT_PUBLIC_API_BASE_URL: https://ambitious-island-01ab11110.7.azurestaticapps.net/api
-          # Login federado AMFS (DEVL)
-          NEXT_PUBLIC_SAML_LOGIN: "true"
+          # Login demo local (correo/contraseña). SSO AMFS desactivado.
+          NEXT_PUBLIC_SAML_LOGIN: "false"
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'

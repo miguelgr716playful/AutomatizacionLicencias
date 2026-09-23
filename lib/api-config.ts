@@ -67,7 +67,7 @@ export function getConfiguracionAdobeUrl(): string {
   return `${API_BASE_URL}/v1/configuracion/adobe`;
 }
 
-/** true = SSO AMFS; false = login demo local. */
+/** true = SSO AMFS; false = login demo local (correo/contraseña). */
 export function isSamlLoginEnabled(): boolean {
-  return Boolean(API_BASE_URL) && process.env.NEXT_PUBLIC_SAML_LOGIN === "true";
+  return false;
 }

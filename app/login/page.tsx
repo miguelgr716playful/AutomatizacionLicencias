@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata: Metadata = {
@@ -22,9 +21,7 @@ export default function LoginPage() {
         }}
         aria-hidden
       />
-      <Suspense fallback={null}>
-        <LoginForm />
-      </Suspense>
+      <LoginForm />
     </div>
   );
 }
